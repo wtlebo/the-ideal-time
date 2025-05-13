@@ -1,3 +1,4 @@
+import os
 import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -10,7 +11,7 @@ import ephem
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-OPENCAGE_API_KEY = '04e734db24e946ff9e38b2d26ba6218e'
+OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
 
 def zip_to_latlon(zip_code):
     url = f'https://api.opencagedata.com/geocode/v1/json?q={zip_code}&key={OPENCAGE_API_KEY}&countrycode=us'
@@ -63,19 +64,14 @@ def score_conditions(entry, thresholds, require_daylight):
 
     if entry['tideHeight'] is not None and thresholds['tideMin'] <= entry['tideHeight'] <= thresholds['tideMax']:
         factors_met += 1
-
     if entry['temperature'] is not None and thresholds['tempMin'] <= entry['temperature'] <= thresholds['tempMax']:
         factors_met += 1
-
     if entry['windSpeed'] is not None and thresholds['windMin'] <= entry['windSpeed'] <= thresholds['windMax']:
         factors_met += 1
-
     if entry['skyCover'] is not None and thresholds['skyMin'] <= entry['skyCover'] <= thresholds['skyMax']:
         factors_met += 1
-
     if entry['precipChance'] is not None and thresholds['precipMin'] <= entry['precipChance'] <= thresholds['precipMax']:
         factors_met += 1
-
     if not require_daylight or entry.get('isDaylight'):
         factors_met += 1
 
@@ -237,6 +233,3 @@ def get_conditions():
         'activity': activity,
         'forecast': forecast_data
     })
-
-if __name__ == '__main__':
-    app.run(debug=True)

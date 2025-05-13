@@ -7,4 +7,4 @@ services:
     plan: free
     envVars:
       - key: OPENCAGE_API_KEY
-        value: your-opencage-api-key-here
+        value: 04e734db24e946ff9e38b2d26ba6218e

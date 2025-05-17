@@ -204,10 +204,10 @@ function App() {
         </select>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="text-gray-600 hover:text-black"
+          className="bg-blue-600 text-white px-4 py-1 rounded flex items-center justify-center"
           title="Scoring Preferences"
         >
-          <GearIcon className="w-6 h-6" />
+          <GearIcon className="w-4 h-4" />
         </button>
         <button
           onClick={fetchConditions}

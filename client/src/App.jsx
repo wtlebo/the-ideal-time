@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Range, getTrackBackground } from 'react-range';
+import { Range } from 'react-range';
 import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 
 function App() {
-  const [zipCode, setZipCode] = useState('');
+  const [zipCode, setZipCode] = useState(() => localStorage.getItem('lastZip') || '');
   const [activity, setActivity] = useState('paddleboarding');
   const [forecast, setForecast] = useState([]);
   const [stationId, setStationId] = useState('');
@@ -24,6 +24,7 @@ function App() {
   const [requireDaylight, setRequireDaylight] = useState(() => JSON.parse(localStorage.getItem(`${activity}_requireDaylight`)) ?? scoringConfig.requireDaylight);
 
   const saveToLocalStorage = () => {
+    localStorage.setItem('lastZip', zipCode);
     localStorage.setItem(`${activity}_tideRange`, JSON.stringify(tideRange));
     localStorage.setItem(`${activity}_temperatureRange`, JSON.stringify(temperatureRange));
     localStorage.setItem(`${activity}_windSpeedRange`, JSON.stringify(windSpeedRange));
@@ -50,19 +51,16 @@ function App() {
   };
 
   useEffect(() => {
-    const defaults = activityDefaults[activity];
-    setTideRange(defaults.tideRange);
-    setTemperatureRange(defaults.temperatureRange);
-    setWindSpeedRange(defaults.windSpeedRange);
-    setSkyCoverRange(defaults.skyCoverRange);
-    setPrecipChanceRange(defaults.precipChanceRange);
-    setRequireDaylight(defaults.requireDaylight);
-  }, [activity]);
+    if (zipCode) {
+      fetchConditions();
+    }
+  }, []);
 
   const fetchConditions = async () => {
     if (!zipCode) return;
     setLoading(true);
     setSelectedHour(null);
+    saveToLocalStorage();
     try {
       const params = new URLSearchParams({
         zip: zipCode,
@@ -89,13 +87,8 @@ function App() {
       console.error('Error fetching conditions:', error);
     } finally {
       setLoading(false);
+      setShowSettings(false);
     }
-  };
-
-  const applySettings = () => {
-    saveToLocalStorage();
-    fetchConditions();
-    setShowSettings(false);
   };
 
   const getScoreColor = (score) => {
@@ -119,11 +112,6 @@ function App() {
     if (e.key === 'Enter') {
       fetchConditions();
     }
-  };
-
-  const handleActivityChange = (e) => {
-    const selected = e.target.value;
-    setActivity(selected);
   };
 
   const renderSlider = (label, min, max, step, values, setValues, unit) => (
@@ -190,31 +178,24 @@ function App() {
   );
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="p-4 max-w-md mx-auto">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-center flex-grow">Water Activity Forecast</h1>
-        <button
-          onClick={() => setShowSettings(!showSettings)}
-          className="text-gray-600 hover:text-black ml-2"
-          title="Scoring Preferences"
-        >
-          <GearIcon className="w-6 h-6" />
-        </button>
       </div>
 
       <div className="flex gap-2 items-center mb-4">
         <input
           type="text"
-          placeholder="Enter ZIP code"
-          className="border rounded px-2 py-1 flex-grow"
+          placeholder="ZIP"
+          className="border rounded px-2 py-1 w-24"
           value={zipCode}
           onChange={(e) => setZipCode(e.target.value)}
           onKeyDown={handleKeyDown}
         />
         <select
-          className="border rounded px-2 py-1"
+          className="border rounded px-2 py-1 flex-grow"
           value={activity}
-          onChange={handleActivityChange}
+          onChange={(e) => setActivity(e.target.value)}
         >
           {Object.keys(activityDefaults).map((key) => (
             <option key={key} value={key}>
@@ -223,14 +204,21 @@ function App() {
           ))}
         </select>
         <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="text-gray-600 hover:text-black"
+          title="Settings"
+        >
+          <GearIcon className="w-6 h-6" />
+        </button>
+        <button
           onClick={fetchConditions}
           className="bg-blue-600 text-white px-4 py-1 rounded"
         >
-          Check Conditions
+          Check
         </button>
       </div>
 
-      {showSettings && (
+      {showSettings ? (
         <div className="mb-6 border rounded p-4" style={{ backgroundColor: 'rgb(106, 90, 205)' }}>
           <h2 className="text-lg font-semibold text-white mb-4">
             Ideal conditions for {activity.charAt(0).toUpperCase() + activity.slice(1)}
@@ -251,26 +239,22 @@ function App() {
               Require daylight
             </label>
           </div>
-          <div className="mt-4 text-right">
+          <div className="mt-4 flex justify-between">
             <button
               onClick={handleRestoreDefaults}
-              className="text-sm bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded mr-2"
+              className="text-sm bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded"
             >
               Restore Defaults
             </button>
             <button
-              onClick={applySettings}
-              className="text-sm bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+              onClick={fetchConditions}
+              className="text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
             >
               Apply
             </button>
           </div>
         </div>
-      )}
-
-      {loading && <p>Loading...</p>}
-
-      {!showSettings && (
+      ) : (
         <div className="h-[500px] overflow-y-auto space-y-2">
           {forecast.map((hour, idx) => (
             <div

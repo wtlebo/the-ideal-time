@@ -27,7 +27,7 @@ function App() {
     if (zipCode) {
       fetchConditions();
     }
-  }, []);
+  }, [zipCode, activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, requireDaylight]);
 
   const fetchConditions = async () => {
     if (!zipCode) return;
@@ -183,17 +183,22 @@ function App() {
         <img src="/logo.png" alt="The Ideal Time" className="w-full max-h-96 object-contain" />
       </div>
 
+      {loading && (
+        <div className="flex justify-center mb-2">
+          <div className="animate-spin rounded-full h-6 w-6 border-t-4 border-b-4 border-blue-500"></div>
+        </div>
+      )}
+
       <div className="flex gap-2 items-center mb-4">
         <input
           type="text"
           placeholder="ZIP"
-          className="border rounded px-2 py-1 w-24"
+          className="border rounded px-2 py-1 w-24 h-[48px]"
           value={zipCode}
           onChange={(e) => setZipCode(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
+          />
         <select
-          className="border rounded px-2 py-1 flex-grow"
+          className="border rounded px-2 py-1 h-[48px] flex-grow"
           value={activity}
           onChange={handleActivityChange}
         >
@@ -212,7 +217,7 @@ function App() {
         </button>
         <button
           onClick={fetchConditions}
-          className="bg-blue-600 text-white px-4 py-1 rounded"
+          className="bg-blue-600 text-white px-4 py-1 rounded h-[48px]"
         >
           Check
         </button>

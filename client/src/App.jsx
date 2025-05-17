@@ -84,7 +84,7 @@ function App() {
         precipMax: precipChanceRange[1],
         requireDaylight
       });
-      const response = await fetch(`http://localhost:5000/conditions?${params.toString()}`);
+      const response = await fetch(`https://the-ideal-time.onrender.com/conditions?${params.toString()}`);
       const data = await response.json();
       setForecast(data.forecast || []);
       setStationId(data.station_id || '');

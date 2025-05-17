@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Range } from 'react-range';
+import { Range, getTrackBackground } from 'react-range';
 import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 
@@ -50,15 +50,6 @@ function App() {
   };
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchConditions();
-      saveToLocalStorage();
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, requireDaylight]);
-
-  useEffect(() => {
     const defaults = activityDefaults[activity];
     setTideRange(defaults.tideRange);
     setTemperatureRange(defaults.temperatureRange);
@@ -99,6 +90,12 @@ function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const applySettings = () => {
+    saveToLocalStorage();
+    fetchConditions();
+    setShowSettings(false);
   };
 
   const getScoreColor = (score) => {
@@ -146,6 +143,7 @@ function App() {
               width: '100%',
               display: 'flex'
             };
+
             const backgroundStyles = [
               {
                 flex: `${(values[0] - min) / (max - min)}`,
@@ -166,6 +164,7 @@ function App() {
                 alignSelf: 'center'
               }
             ];
+
             return (
               <div {...props} style={{ ...props.style, ...trackStyle }}>
                 {backgroundStyles.map((style, idx) => (
@@ -255,9 +254,15 @@ function App() {
           <div className="mt-4 text-right">
             <button
               onClick={handleRestoreDefaults}
-              className="text-sm bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded"
+              className="text-sm bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded mr-2"
             >
               Restore Defaults
+            </button>
+            <button
+              onClick={applySettings}
+              className="text-sm bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+            >
+              Apply
             </button>
           </div>
         </div>
@@ -265,20 +270,22 @@ function App() {
 
       {loading && <p>Loading...</p>}
 
-      <div className="h-[500px] overflow-y-auto space-y-2">
-        {forecast.map((hour, idx) => (
-          <div
-            key={idx}
-            className={`flex items-center justify-between px-4 py-2 rounded cursor-pointer ${getScoreColor(hour.score)} ${selectedHour === idx ? 'border-4 border-white' : ''}`}
-            onClick={() => setSelectedHour(selectedHour === idx ? null : idx)}
-          >
-            <div className="text-sm font-mono text-white">
-              {formatDateTime(hour.time)}
+      {!showSettings && (
+        <div className="h-[500px] overflow-y-auto space-y-2">
+          {forecast.map((hour, idx) => (
+            <div
+              key={idx}
+              className={`flex items-center justify-between px-4 py-2 rounded cursor-pointer ${getScoreColor(hour.score)} ${selectedHour === idx ? 'border-4 border-white' : ''}`}
+              onClick={() => setSelectedHour(selectedHour === idx ? null : idx)}
+            >
+              <div className="text-sm font-mono text-white">
+                {formatDateTime(hour.time)}
+              </div>
+              <div className="text-white font-bold">&nbsp;</div>
             </div>
-            <div className="text-white font-bold">&nbsp;</div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {selectedHour !== null && forecast[selectedHour] && (
         <div className="mt-6 p-4 border rounded bg-gray-800 text-white">

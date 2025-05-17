@@ -88,6 +88,7 @@ function App() {
     setSkyCoverRange(defaults.skyCoverRange);
     setPrecipChanceRange(defaults.precipChanceRange);
     setRequireDaylight(defaults.requireDaylight);
+    fetchConditions();
   };
 
   const handleKeyDown = (e) => {
@@ -204,7 +205,7 @@ function App() {
         </select>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="bg-blue-600 text-white px-4 py-1 rounded h-[32px] flex items-center justify-center"
+          className="bg-blue-600 text-white px-4 py-1 rounded h-[48px] flex items-center justify-center"
           title="Preferences"
         >
           <GearIcon className="w-4 h-4" />

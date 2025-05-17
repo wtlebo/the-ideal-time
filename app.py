@@ -91,19 +91,17 @@ def get_tide_predictions(station_id, lat, lon):
     response = requests.get(url)
     predictions = response.json().get('predictions', [])
 
-    tf = TimezoneFinder()
-    tz_name = tf.timezone_at(lat=lat, lng=lon)
-    local_tz = pytz.timezone(tz_name if tz_name else 'UTC')
-
     tide_by_time = {}
     for p in predictions:
         try:
-            naive_ts = isoparse(p['t']).replace(minute=0, second=0, microsecond=0)
-            ts = local_tz.localize(naive_ts)
-            tide_by_time[ts.isoformat()] = float(p['v'])
-        except Exception:
+            # NOAA timestamps are already in local time (EDT/EST), no tzinfo needed
+            naive_local = datetime.strptime(p['t'], "%Y-%m-%d %H:%M").replace(minute=0, second=0, microsecond=0)
+            tide_by_time[naive_local.isoformat()] = float(p['v'])
+        except Exception as e:
+            print(f"Skipping tide entry due to error: {e}")
             continue
     return tide_by_time
+
 
 
 

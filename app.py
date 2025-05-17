@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dateutil.parser import isoparse
 from datetime import datetime, timedelta
+from timezonefinder import TimezoneFinder
 import pytz
 import math
 import ephem
@@ -78,8 +79,6 @@ def score_conditions(entry, thresholds, require_daylight):
 
     return factors_met
 
-from timezonefinder import TimezoneFinder
-
 def get_tide_predictions(station_id, lat, lon):
     now = datetime.utcnow()
     start = now.strftime('%Y%m%d')
@@ -92,7 +91,6 @@ def get_tide_predictions(station_id, lat, lon):
     response = requests.get(url)
     predictions = response.json().get('predictions', [])
 
-    # Use timezonefinder to get local timezone from lat/lon
     tf = TimezoneFinder()
     tz_name = tf.timezone_at(lat=lat, lng=lon)
     local_tz = pytz.timezone(tz_name if tz_name else 'UTC')
@@ -100,8 +98,8 @@ def get_tide_predictions(station_id, lat, lon):
     tide_by_time = {}
     for p in predictions:
         try:
-            # NOAA returns local time as naive datetime string
-            ts = isoparse(p['t']).replace(tzinfo=local_tz).replace(minute=0, second=0, microsecond=0)
+            naive_ts = isoparse(p['t']).replace(minute=0, second=0, microsecond=0)
+            ts = local_tz.localize(naive_ts)
             tide_by_time[ts.isoformat()] = float(p['v'])
         except Exception:
             continue

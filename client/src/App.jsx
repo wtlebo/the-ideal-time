@@ -4,7 +4,7 @@ import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 
 function App() {
-  const [zipCode, setZipCode] = useState(() => localStorage.getItem('lastZip') || '');
+  const [zipCode, setZipCode] = useState(() => localStorage.getItem('zipCode') || '');
   const [activity, setActivity] = useState('paddleboarding');
   const [forecast, setForecast] = useState([]);
   const [stationId, setStationId] = useState('');
@@ -16,40 +16,14 @@ function App() {
 
   const scoringConfig = activityDefaults[activity];
 
-  const [tideRange, setTideRange] = useState(() => JSON.parse(localStorage.getItem(`${activity}_tideRange`)) || scoringConfig.tideRange);
-  const [temperatureRange, setTemperatureRange] = useState(() => JSON.parse(localStorage.getItem(`${activity}_temperatureRange`)) || scoringConfig.temperatureRange);
-  const [windSpeedRange, setWindSpeedRange] = useState(() => JSON.parse(localStorage.getItem(`${activity}_windSpeedRange`)) || scoringConfig.windSpeedRange);
-  const [skyCoverRange, setSkyCoverRange] = useState(() => JSON.parse(localStorage.getItem(`${activity}_skyCoverRange`)) || scoringConfig.skyCoverRange);
-  const [precipChanceRange, setPrecipChanceRange] = useState(() => JSON.parse(localStorage.getItem(`${activity}_precipChanceRange`)) || scoringConfig.precipChanceRange);
-  const [requireDaylight, setRequireDaylight] = useState(() => JSON.parse(localStorage.getItem(`${activity}_requireDaylight`)) ?? scoringConfig.requireDaylight);
+  const [tideRange, setTideRange] = useState(scoringConfig.tideRange);
+  const [temperatureRange, setTemperatureRange] = useState(scoringConfig.temperatureRange);
+  const [windSpeedRange, setWindSpeedRange] = useState(scoringConfig.windSpeedRange);
+  const [skyCoverRange, setSkyCoverRange] = useState(scoringConfig.skyCoverRange);
+  const [precipChanceRange, setPrecipChanceRange] = useState(scoringConfig.precipChanceRange);
+  const [requireDaylight, setRequireDaylight] = useState(scoringConfig.requireDaylight);
 
-  const saveToLocalStorage = () => {
-    localStorage.setItem('lastZip', zipCode);
-    localStorage.setItem(`${activity}_tideRange`, JSON.stringify(tideRange));
-    localStorage.setItem(`${activity}_temperatureRange`, JSON.stringify(temperatureRange));
-    localStorage.setItem(`${activity}_windSpeedRange`, JSON.stringify(windSpeedRange));
-    localStorage.setItem(`${activity}_skyCoverRange`, JSON.stringify(skyCoverRange));
-    localStorage.setItem(`${activity}_precipChanceRange`, JSON.stringify(precipChanceRange));
-    localStorage.setItem(`${activity}_requireDaylight`, JSON.stringify(requireDaylight));
-  };
-
-  const handleRestoreDefaults = () => {
-    const defaults = activityDefaults[activity];
-    setTideRange(defaults.tideRange);
-    setTemperatureRange(defaults.temperatureRange);
-    setWindSpeedRange(defaults.windSpeedRange);
-    setSkyCoverRange(defaults.skyCoverRange);
-    setPrecipChanceRange(defaults.precipChanceRange);
-    setRequireDaylight(defaults.requireDaylight);
-
-    localStorage.removeItem(`${activity}_tideRange`);
-    localStorage.removeItem(`${activity}_temperatureRange`);
-    localStorage.removeItem(`${activity}_windSpeedRange`);
-    localStorage.removeItem(`${activity}_skyCoverRange`);
-    localStorage.removeItem(`${activity}_precipChanceRange`);
-    localStorage.removeItem(`${activity}_requireDaylight`);
-  };
-
+  // Load forecast on first visit if zip exists
   useEffect(() => {
     if (zipCode) {
       fetchConditions();
@@ -60,7 +34,7 @@ function App() {
     if (!zipCode) return;
     setLoading(true);
     setSelectedHour(null);
-    saveToLocalStorage();
+    localStorage.setItem('zipCode', zipCode);
     try {
       const params = new URLSearchParams({
         zip: zipCode,
@@ -87,7 +61,39 @@ function App() {
       console.error('Error fetching conditions:', error);
     } finally {
       setLoading(false);
-      setShowSettings(false);
+    }
+  };
+
+  const handleRestoreDefaults = () => {
+    const defaults = activityDefaults[activity];
+    setTideRange(defaults.tideRange);
+    setTemperatureRange(defaults.temperatureRange);
+    setWindSpeedRange(defaults.windSpeedRange);
+    setSkyCoverRange(defaults.skyCoverRange);
+    setPrecipChanceRange(defaults.precipChanceRange);
+    setRequireDaylight(defaults.requireDaylight);
+  };
+
+  const handleApplySettings = () => {
+    setShowSettings(false);
+    fetchConditions();
+  };
+
+  const handleActivityChange = (e) => {
+    const selected = e.target.value;
+    setActivity(selected);
+    const defaults = activityDefaults[selected];
+    setTideRange(defaults.tideRange);
+    setTemperatureRange(defaults.temperatureRange);
+    setWindSpeedRange(defaults.windSpeedRange);
+    setSkyCoverRange(defaults.skyCoverRange);
+    setPrecipChanceRange(defaults.precipChanceRange);
+    setRequireDaylight(defaults.requireDaylight);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      fetchConditions();
     }
   };
 
@@ -106,12 +112,6 @@ function App() {
   const formatDetailDateTime = (isoString) => {
     const options = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' };
     return new Date(isoString).toLocaleString(undefined, options);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      fetchConditions();
-    }
   };
 
   const renderSlider = (label, min, max, step, values, setValues, unit) => (
@@ -180,7 +180,7 @@ function App() {
   return (
     <div className="p-4 max-w-md mx-auto">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-center flex-grow">Water Activity Forecast</h1>
+        <h1 className="text-xl font-bold text-center flex-grow">Water Activity Forecast</h1>
       </div>
 
       <div className="flex gap-2 items-center mb-4">
@@ -195,7 +195,7 @@ function App() {
         <select
           className="border rounded px-2 py-1 flex-grow"
           value={activity}
-          onChange={(e) => setActivity(e.target.value)}
+          onChange={handleActivityChange}
         >
           {Object.keys(activityDefaults).map((key) => (
             <option key={key} value={key}>
@@ -206,7 +206,7 @@ function App() {
         <button
           onClick={() => setShowSettings(!showSettings)}
           className="text-gray-600 hover:text-black"
-          title="Settings"
+          title="Scoring Preferences"
         >
           <GearIcon className="w-6 h-6" />
         </button>
@@ -218,7 +218,7 @@ function App() {
         </button>
       </div>
 
-      {showSettings ? (
+      {showSettings && (
         <div className="mb-6 border rounded p-4" style={{ backgroundColor: 'rgb(106, 90, 205)' }}>
           <h2 className="text-lg font-semibold text-white mb-4">
             Ideal conditions for {activity.charAt(0).toUpperCase() + activity.slice(1)}
@@ -247,15 +247,18 @@ function App() {
               Restore Defaults
             </button>
             <button
-              onClick={fetchConditions}
-              className="text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+              onClick={handleApplySettings}
+              className="text-sm bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
             >
               Apply
             </button>
           </div>
         </div>
-      ) : (
+      )}
+
+      {!showSettings && (
         <div className="h-[500px] overflow-y-auto space-y-2">
+          {loading && <p>Loading...</p>}
           {forecast.map((hour, idx) => (
             <div
               key={idx}

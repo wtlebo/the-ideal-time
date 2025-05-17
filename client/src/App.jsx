@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Range } from 'react-range';
 import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
@@ -14,7 +14,6 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const debounceTimeout = useRef(null);
   const scoringConfig = activityDefaults[activity];
 
   const [tideRange, setTideRange] = useState(() => JSON.parse(localStorage.getItem(`${activity}_tideRange`)) || scoringConfig.tideRange);
@@ -50,16 +49,13 @@ function App() {
     localStorage.removeItem(`${activity}_requireDaylight`);
   };
 
-  const debouncedFetch = () => {
-    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-    debounceTimeout.current = setTimeout(() => {
-      fetchConditions();
-    }, 300);
-  };
-
   useEffect(() => {
-    debouncedFetch();
-    saveToLocalStorage();
+    const timeoutId = setTimeout(() => {
+      fetchConditions();
+      saveToLocalStorage();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   }, [tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, requireDaylight]);
 
   useEffect(() => {
@@ -150,7 +146,6 @@ function App() {
               width: '100%',
               display: 'flex'
             };
-
             const backgroundStyles = [
               {
                 flex: `${(values[0] - min) / (max - min)}`,
@@ -171,7 +166,6 @@ function App() {
                 alignSelf: 'center'
               }
             ];
-
             return (
               <div {...props} style={{ ...props.style, ...trackStyle }}>
                 {backgroundStyles.map((style, idx) => (
@@ -209,7 +203,6 @@ function App() {
         </button>
       </div>
 
-      {/* ZIP & Activity Inputs */}
       <div className="flex gap-2 items-center mb-4">
         <input
           type="text"
@@ -238,7 +231,6 @@ function App() {
         </button>
       </div>
 
-      {/* Settings Panel */}
       {showSettings && (
         <div className="mb-6 border rounded p-4" style={{ backgroundColor: 'rgb(106, 90, 205)' }}>
           <h2 className="text-lg font-semibold text-white mb-4">
@@ -280,7 +272,9 @@ function App() {
             className={`flex items-center justify-between px-4 py-2 rounded cursor-pointer ${getScoreColor(hour.score)} ${selectedHour === idx ? 'border-4 border-white' : ''}`}
             onClick={() => setSelectedHour(selectedHour === idx ? null : idx)}
           >
-            <div className="text-sm font-mono text-white">{formatDateTime(hour.time)}</div>
+            <div className="text-sm font-mono text-white">
+              {formatDateTime(hour.time)}
+            </div>
             <div className="text-white font-bold">&nbsp;</div>
           </div>
         ))}

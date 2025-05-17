@@ -10,7 +10,6 @@ import math
 import ephem
 
 app = Flask(__name__)
-'CORS(app, resources={r"/*": {"origins": "*"}})
 CORS(app, origins=["https://the-ideal-time-frontend.onrender.com"])
 
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')

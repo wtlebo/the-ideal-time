@@ -105,14 +105,29 @@ function App() {
     return 'bg-red-500';
   };
 
-  const formatDateTime = (isoString) => {
-    const options = { weekday: 'short', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' };
-    return new Date(isoString).toLocaleString(undefined, options);
+  const formatDateTime = (isoString, timeZone = 'America/New_York') => {
+    const options = {
+      weekday: 'short',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZone
+    };
+    return new Intl.DateTimeFormat(undefined, options).format(new Date(isoString));
   };
 
-  const formatDetailDateTime = (isoString) => {
-    const options = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' };
-    return new Date(isoString).toLocaleString(undefined, options);
+  const formatDetailDateTime = (isoString, timeZone = 'America/New_York') => {
+    const options = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZone
+    };
+    return new Intl.DateTimeFormat(undefined, options).format(new Date(isoString));
   };
 
   const renderSlider = (label, min, max, step, values, setValues, unit) => (

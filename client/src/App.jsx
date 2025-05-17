@@ -204,8 +204,8 @@ function App() {
         </select>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="bg-blue-600 text-white px-4 py-1 rounded flex items-center justify-center"
-          title="Scoring Preferences"
+          className="bg-blue-600 text-white px-4 py-1 rounded h-[32px] flex items-center justify-center"
+          title="Preferences"
         >
           <GearIcon className="w-4 h-4" />
         </button>

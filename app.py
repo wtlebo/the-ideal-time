@@ -90,13 +90,17 @@ def get_tide_predictions(station_id):
     response = requests.get(url)
     predictions = response.json().get('predictions', [])
     tide_by_time = {}
+    local_tz = pytz.timezone('America/New_York')  # You can make this dynamic later
+
     for p in predictions:
         try:
-            ts = isoparse(p['t']).astimezone(pytz.UTC).replace(minute=0, second=0, microsecond=0)
+            # NOAA returns local time, so we parse and assign it that timezone
+            ts = isoparse(p['t']).replace(tzinfo=local_tz).replace(minute=0, second=0, microsecond=0)
             tide_by_time[ts.isoformat()] = float(p['v'])
         except Exception:
             continue
     return tide_by_time
+
 
 def get_water_temperature(station_id):
     now = datetime.utcnow()

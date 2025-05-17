@@ -129,7 +129,7 @@ def get_water_temperature(station_id):
             continue
     return None
 
-def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, thresholds=None, require_daylight=False):
+def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, thresholds=None, require_daylight=False, tz_name="America/New_York"):
     headers = {'User-Agent': 'WaterActivityApp (wtlebo@gmail.com)'}
 
     points_url = f'https://api.weather.gov/points/{lat},{lon}'
@@ -157,11 +157,12 @@ def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, thresholds=No
         timestamp = isoparse(timestamp_str).astimezone(pytz.UTC).replace(minute=0, second=0, microsecond=0)
         sky_by_time[timestamp.isoformat()] = entry['value']
 
+    local_tz = pytz.timezone(tz_name)
     clean_data = []
     for hour in raw_periods:
         time_str = hour['startTime']
         time_utc = isoparse(time_str).astimezone(pytz.UTC).replace(minute=0, second=0, microsecond=0)
-        time_local = isoparse(time_str).isoformat()
+        time_local = time_utc.astimezone(local_tz).replace(minute=0, second=0, microsecond=0)
 
         wind_speed_str = hour.get('windSpeed', '0 mph').split()[0]
         try:
@@ -172,10 +173,10 @@ def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, thresholds=No
         precip = hour.get('probabilityOfPrecipitation', {}).get('value')
         precip_chance = precip if precip is not None else 0
         sky_cover = sky_by_time.get(time_utc.isoformat(), None)
-        tide_height = tide_data.get(time_utc.isoformat(), None)
+        tide_height = tide_data.get(time_local.isoformat(), None)
 
         entry = {
-            'time': time_local,
+            'time': time_local.isoformat(),
             'temperature': hour['temperature'],
             'windSpeed': wind_speed,
             'windDirection': hour.get('windDirection'),
@@ -199,6 +200,7 @@ def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, thresholds=No
         entry['score'] = score_conditions(entry, thresholds, require_daylight)
 
     return clean_data
+
 
 @app.route('/conditions')
 def get_conditions():
@@ -231,7 +233,8 @@ def get_conditions():
     forecast_data = get_noaa_hourly_forecast(
         lat, lon, tide_data, water_temp,
         thresholds=thresholds,
-        require_daylight=require_daylight
+        require_daylight=require_daylight,
+        tz_name=tz_name
     )
 
     if forecast_data is None:

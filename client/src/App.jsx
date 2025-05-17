@@ -193,12 +193,12 @@ function App() {
         <input
           type="text"
           placeholder="ZIP"
-          className="border rounded px-2 py-1 w-24 h-[48px]"
+          className="border rounded px-2 py-1 w-24 h-[32px]"
           value={zipCode}
           onChange={(e) => setZipCode(e.target.value)}
           />
         <select
-          className="border rounded px-2 py-1 h-[48px] flex-grow"
+          className="border rounded px-2 py-1 h-[32px] flex-grow"
           value={activity}
           onChange={handleActivityChange}
         >
@@ -210,14 +210,14 @@ function App() {
         </select>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="bg-blue-600 text-white px-4 py-1 rounded h-[48px] flex items-center justify-center"
+          className="bg-blue-600 text-white px-4 py-1 rounded h-[32px] flex items-center justify-center"
           title="Preferences"
         >
           <GearIcon className="w-4 h-4" />
         </button>
         <button
           onClick={fetchConditions}
-          className="bg-blue-600 text-white px-4 py-1 rounded h-[48px]"
+          className="bg-blue-600 text-white px-4 py-1 rounded h-[32px]"
         >
           Check
         </button>

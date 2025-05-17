@@ -78,7 +78,9 @@ def score_conditions(entry, thresholds, require_daylight):
 
     return factors_met
 
-def get_tide_predictions(station_id):
+from timezonefinder import TimezoneFinder
+
+def get_tide_predictions(station_id, lat, lon):
     now = datetime.utcnow()
     start = now.strftime('%Y%m%d')
     end = (now + timedelta(days=7)).strftime('%Y%m%d')
@@ -89,17 +91,22 @@ def get_tide_predictions(station_id):
     )
     response = requests.get(url)
     predictions = response.json().get('predictions', [])
-    tide_by_time = {}
-    local_tz = pytz.timezone('America/New_York')  # You can make this dynamic later
 
+    # Use timezonefinder to get local timezone from lat/lon
+    tf = TimezoneFinder()
+    tz_name = tf.timezone_at(lat=lat, lng=lon)
+    local_tz = pytz.timezone(tz_name if tz_name else 'UTC')
+
+    tide_by_time = {}
     for p in predictions:
         try:
-            # NOAA returns local time, so we parse and assign it that timezone
+            # NOAA returns local time as naive datetime string
             ts = isoparse(p['t']).replace(tzinfo=local_tz).replace(minute=0, second=0, microsecond=0)
             tide_by_time[ts.isoformat()] = float(p['v'])
         except Exception:
             continue
     return tide_by_time
+
 
 
 def get_water_temperature(station_id):
@@ -216,7 +223,7 @@ def get_conditions():
         return jsonify({'error': 'Invalid ZIP code'}), 400
 
     station_id, station_name, distance_miles = find_closest_tide_station(lat, lon)
-    tide_data = get_tide_predictions(station_id)
+    tide_data = get_tide_predictions(station_id, lat, lon)
     water_temp = get_water_temperature(station_id)
 
     forecast_data = get_noaa_hourly_forecast(

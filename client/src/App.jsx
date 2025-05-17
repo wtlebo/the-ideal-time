@@ -52,6 +52,7 @@ function App() {
       });
       const response = await fetch(`https://the-ideal-time.onrender.com/conditions?${params.toString()}`);
       const data = await response.json();
+      console.log('Forecast data:', data.forecast);
       setForecast(data.forecast || []);
       setStationId(data.station_id || '');
       setStationName(data.station_name || '');

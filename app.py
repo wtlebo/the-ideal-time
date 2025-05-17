@@ -225,6 +225,10 @@ def get_conditions():
     lat, lon = zip_to_latlon(zip_code)
     if lat is None:
         return jsonify({'error': 'Invalid ZIP code'}), 400
+        
+    from timezonefinder import TimezoneFinder
+    tf = TimezoneFinder()
+    tz_name = tf.timezone_at(lat=lat, lng=lon) or 'America/New_York'
 
     station_id, station_name, distance_miles = find_closest_tide_station(lat, lon)
     tide_data = get_tide_predictions(station_id, lat, lon)

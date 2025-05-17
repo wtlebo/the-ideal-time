@@ -23,7 +23,6 @@ function App() {
   const [precipChanceRange, setPrecipChanceRange] = useState(scoringConfig.precipChanceRange);
   const [requireDaylight, setRequireDaylight] = useState(scoringConfig.requireDaylight);
 
-  // Load forecast on first visit if zip exists
   useEffect(() => {
     if (zipCode) {
       fetchConditions();
@@ -179,8 +178,11 @@ function App() {
 
   return (
     <div className="p-4 max-w-md mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold text-center flex-grow">Water Activity Forecast</h1>
+      <div className="flex justify-center mb-4">
+        <img src="/logo.png" alt="Water Activity Forecast Logo" className="h-12" />
+      </div>
+      <div className="flex justify-center mb-4">
+        <img src="/logo.png" alt="Water Activity Forecast Logo" className="h-12" />
       </div>
 
       <div className="flex gap-2 items-center mb-4">
@@ -217,6 +219,7 @@ function App() {
           Check
         </button>
       </div>
+
 
       {showSettings && (
         <div className="mb-6 border rounded p-4" style={{ backgroundColor: 'rgb(106, 90, 205)' }}>

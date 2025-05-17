@@ -104,7 +104,8 @@ def get_tide_predictions(station_id, lat, lon):
         except Exception as e:
             print(f"Skipping tide prediction due to error: {e}")
             continue
-
+    print("Sample tide time:", ts.isoformat())
+    print("local_tz:", local_tz)
     return tide_by_time
 
 

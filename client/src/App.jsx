@@ -10,6 +10,7 @@ function App() {
   const [stationId, setStationId] = useState('');
   const [stationName, setStationName] = useState('');
   const [stationDistance, setStationDistance] = useState(null);
+  const [timeZone, setTimeZone] = useState('America/New_York');
   const [selectedHour, setSelectedHour] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -57,6 +58,7 @@ function App() {
       setStationId(data.station_id || '');
       setStationName(data.station_name || '');
       setStationDistance(data.station_distance_miles || null);
+      setTimeZone(data.timezone || 'America/New_York');
     } catch (error) {
       console.error('Error fetching conditions:', error);
     } finally {

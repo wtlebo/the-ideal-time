@@ -225,7 +225,7 @@ def get_conditions():
     lat, lon = zip_to_latlon(zip_code)
     if lat is None:
         return jsonify({'error': 'Invalid ZIP code'}), 400
-        
+
     from timezonefinder import TimezoneFinder
     tf = TimezoneFinder()
     tz_name = tf.timezone_at(lat=lat, lng=lon) or 'America/New_York'
@@ -253,4 +253,5 @@ def get_conditions():
         'station_distance_miles': round(distance_miles, 2),
         'activity': activity,
         'forecast': forecast_data
+        'timezone': tz_name
     })

@@ -216,18 +216,6 @@ function App() {
         <img src="/logo.png" alt="The Ideal Time" className="w-full max-h-96 object-contain" />
       </div>
 
-      {forecast.length > 0 && (
-        <div className="grid grid-cols-6 gap-1 mb-4">
-          {forecast.map((entry, idx) => (
-            <div
-              key={idx}
-              className={`h-6 rounded ${getScoreColor(entry.score)}`}
-              title={`${formatDateTime(entry.time, timeZone)}: Score ${entry.score}`}
-            ></div>
-          ))}
-        </div>
-      )}
-
       {loading && (
         <div className="flex justify-center mb-2">
           <div className="animate-spin rounded-full h-6 w-6 border-t-4 border-b-4 border-blue-500"></div>

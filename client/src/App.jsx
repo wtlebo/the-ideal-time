@@ -61,14 +61,13 @@ function App() {
     const sunrise = 360; // 6 AM
     const sunset = 1080; // 6 PM
     try {
-      const geoRes = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${zipCode}&key=${import.meta.env.VITE_OPENCAGE_API_KEY}`);
+      const geoRes = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${zipCode}&countrycode=us&key=${import.meta.env.VITE_OPENCAGE_API_KEY}`);
       const geoData = await geoRes.json();
       if (geoData.results.length > 0) {
         const { city, town, village, state_code } = geoData.results[0].components;
         const cityName = city || town || village || '';
         setLocationName(`${cityName}, ${state_code}`);
       }
-      console.log('Loaded OpenCage key:', import.meta.env.VITE_OPENCAGE_API_KEY);
     } catch (e) {
       console.warn('Could not fetch city/state:', e);
     }
@@ -80,7 +79,6 @@ function App() {
       });
       const response = await fetch(`https://the-ideal-time.onrender.com/conditions?${params.toString()}`);
       const data = await response.json();
-      console.log('Forecast data:', data.forecast);
       newForecast = data.forecast || [];
       setStationId(data.station_id || '');
       setStationName(data.station_name || '');

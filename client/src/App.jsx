@@ -28,10 +28,11 @@ function App() {
   }); // 6:00 AM to 6:00 PM
 
   useEffect(() => {
-    if (zipCode) {
+    if (/^\d{5}$/.test(zipCode)) {
       fetchConditions();
     }
   }, [zipCode]);
+
 
   const fetchConditions = async () => {
     let newForecast = [];

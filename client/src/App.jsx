@@ -59,18 +59,7 @@ function App() {
     try {
       const params = new URLSearchParams({
         zip: zipCode,
-        activity,
-        tideMin: tideRange[0],
-        tideMax: tideRange[1],
-        tempMin: temperatureRange[0],
-        tempMax: temperatureRange[1],
-        windMin: windSpeedRange[0],
-        windMax: windSpeedRange[1],
-        skyMin: skyCoverRange[0],
-        skyMax: skyCoverRange[1],
-        precipMin: precipChanceRange[0],
-        precipMax: precipChanceRange[1],
-        daylightRange
+        activity
       });
       const response = await fetch(`https://the-ideal-time.onrender.com/conditions?${params.toString()}`);
       const data = await response.json();

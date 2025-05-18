@@ -70,7 +70,7 @@ function App() {
         skyMax: skyCoverRange[1],
         precipMin: precipChanceRange[0],
         precipMax: precipChanceRange[1],
-        requireDaylight
+        daylightRange
       });
       const response = await fetch(`https://the-ideal-time.onrender.com/conditions?${params.toString()}`);
       const data = await response.json();
@@ -127,7 +127,7 @@ function App() {
     setWindSpeedRange(defaults.windSpeedRange);
     setSkyCoverRange(defaults.skyCoverRange);
     setPrecipChanceRange(defaults.precipChanceRange);
-    setRequireDaylight(defaults.requireDaylight);
+    setRequireDaylight(defaults.daylightRange);
   };
 
   const handleKeyDown = (e) => {
@@ -159,7 +159,7 @@ function App() {
 
   useEffect(() => {
     setForecast(prev => scoreForecast(prev));
-  }, [activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, requireDaylight]);
+  }, [activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange]);
 
   const formatDateTime = (isoString, timeZone = 'America/New_York') => {
     const options = {

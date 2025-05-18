@@ -324,7 +324,7 @@ function App() {
           {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph')}
           {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%')}
           {renderSlider('Precipitation Chance (%)', scoringConfig.precipChanceMin, scoringConfig.precipChanceMax, 1, precipChanceRange, setPrecipChanceRange, '%')}
-          {renderSlider('Daylight Hours', 0, 1439, 15, daylightRange, setDaylightRange, 'min')}
+          {renderSlider('Time of Day', 0, 1439, 15, daylightRange, setDaylightRange, 'min')}
           <div className="mt-4 flex justify-between items-center gap-2">
             <button
               onClick={handleRestoreDefaults}

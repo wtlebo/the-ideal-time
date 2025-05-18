@@ -227,7 +227,7 @@ function App() {
         <span className="text-sm w-10 text-gray-100">{max}</span>
       </div>
       <div className="text-sm mt-1 text-gray-300">
-        Selected: {formatMinutes(values[0])} - {formatMinutes(values[1])}
+        Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : `${values[0]} ${unit} - ${values[1]} ${unit}`}
       </div>
     </div>
   );

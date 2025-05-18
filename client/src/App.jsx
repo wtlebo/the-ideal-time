@@ -68,6 +68,7 @@ function App() {
         const cityName = city || town || village || '';
         setLocationName(`${cityName}, ${state_code}`);
       }
+      console.log('Loaded OpenCage key:', import.meta.env.VITE_OPENCAGE_API_KEY);
     } catch (e) {
       console.warn('Could not fetch city/state:', e);
     }

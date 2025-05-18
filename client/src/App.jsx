@@ -25,7 +25,7 @@ function App() {
   const [daylightRange, setDaylightRange] = useState(() => {
     const stored = localStorage.getItem('daylightRange');
     return stored ? JSON.parse(stored) : [360, 1080];
-  });
+  }); // 6:00 AM to 6:00 PM
 
   useEffect(() => {
     if (zipCode) {
@@ -36,8 +36,9 @@ function App() {
   const fetchConditions = async () => {
     if (!zipCode) return;
     setLoading(true);
-    const sunrise = 360;
-    const sunset = 1080;
+    // Default sunrise/sunset fallback
+    const sunrise = 360; // 6 AM
+    const sunset = 1080; // 6 PM
     try {
       const sunResponse = await fetch(`https://api.sunrise-sunset.org/json?lat=42.36&lng=-71.06&formatted=0`);
       const sunData = await sunResponse.json();
@@ -56,9 +57,13 @@ function App() {
     setSelectedHour(null);
     localStorage.setItem('zipCode', zipCode);
     try {
-      const params = new URLSearchParams({ zip: zipCode, activity });
+      const params = new URLSearchParams({
+        zip: zipCode,
+        activity
+      });
       const response = await fetch(`https://the-ideal-time.onrender.com/conditions?${params.toString()}`);
       const data = await response.json();
+      console.log('Forecast data:', data.forecast);
       setForecast(data.forecast || []);
       setStationId(data.station_id || '');
       setStationName(data.station_name || '');
@@ -70,6 +75,8 @@ function App() {
       setLoading(false);
     }
   };
+
+  
 
   const handleRestoreDefaults = () => {
     const defaults = activityDefaults[activity];
@@ -158,52 +165,131 @@ function App() {
     return new Intl.DateTimeFormat(undefined, options).format(new Date(isoString));
   };
 
-  const formatMinutes = (mins) => {
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    const hour = h % 12 || 12;
-    return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
-  };
+  const renderSlider = (label, min, max, step, values, setValues, unit) => (
+    <div className="mb-4">
+      <label className="block text-sm font-semibold text-white mb-1">{label}</label>
+      <div className="flex items-center gap-4">
+        <span className="text-sm w-10 text-gray-100">{min}</span>
+        <Range
+          values={values}
+          step={step}
+          min={min}
+          max={max}
+          onChange={setValues}
+          renderTrack={({ props, children }) => {
+            const trackStyle = {
+              height: '6px',
+              width: '100%',
+              display: 'flex'
+            };
+
+            const backgroundStyles = [
+              {
+                flex: `${(values[0] - min) / (max - min)}`,
+                backgroundColor: '#ccc',
+                height: '4px',
+                alignSelf: 'center'
+              },
+              {
+                flex: `${(values[1] - values[0]) / (max - min)}`,
+                backgroundColor: '#0d9488',
+                height: '6px',
+                alignSelf: 'center'
+              },
+              {
+                flex: `${(max - values[1]) / (max - min)}`,
+                backgroundColor: '#ccc',
+                height: '4px',
+                alignSelf: 'center'
+              }
+            ];
+
+            return (
+              <div {...props} style={{ ...props.style, ...trackStyle }}>
+                {backgroundStyles.map((style, idx) => (
+                  <div key={idx} style={style} />
+                ))}
+                {children}
+              </div>
+            );
+          }}
+          onChange={(values) => {
+            setDaylightRange(values);
+            localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
+          }}
+          renderThumb={({ props }) => (
+            <div
+              {...props}
+              className="h-4 w-4 bg-white border border-gray-400 rounded-full shadow"
+            />
+          )}
+        />
+        <span className="text-sm w-10 text-gray-100">{max}</span>
+      </div>
+      <div className="text-sm mt-1 text-gray-300">
+        Selected: {formatMinutes(values[0])} - {formatMinutes(values[1])}
+      </div>
+    </div>
+  );
 
   return (
-    <div className="p-4">
-      <div className="text-xs text-gray-400 text-center mb-2">
-        Timezone: {timeZone.replace('_', ' ')}
+    <div className="p-4 max-w-md mx-auto">
+      <div className="flex justify-center mb-4">
+        <img src="/logo.png" alt="The Ideal Time" className="w-full max-h-96 object-contain" />
       </div>
 
-      <div className="flex justify-between items-center mb-4">
+      {loading && (
+        <div className="flex justify-center mb-2">
+          <div className="animate-spin rounded-full h-6 w-6 border-t-4 border-b-4 border-blue-500"></div>
+        </div>
+      )}
+
+      <div className="flex gap-2 items-center mb-4">
         <input
           type="text"
+          placeholder="ZIP"
+          className="border rounded px-2 py-1 w-24 h-[32px]"
           value={zipCode}
           onChange={(e) => setZipCode(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Enter ZIP code"
-          className="px-2 py-1 border rounded text-black"
-        />
-        <select value={activity} onChange={handleActivityChange} className="ml-2 px-2 py-1 rounded text-black">
+          />
+        <select
+          className="border rounded px-2 py-1 h-[32px] flex-grow"
+          value={activity}
+          onChange={handleActivityChange}
+        >
           {Object.keys(activityDefaults).map((key) => (
-            <option key={key} value={key}>{key}</option>
+            <option key={key} value={key}>
+              {key.charAt(0).toUpperCase() + key.slice(1)}
+            </option>
           ))}
         </select>
-        <button onClick={() => setShowSettings(!showSettings)} className="ml-2 p-1 rounded bg-blue-500 hover:bg-blue-600">
-          <GearIcon className="text-white" />
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="bg-blue-600 text-white px-4 py-1 rounded h-[32px] flex items-center justify-center"
+          title="Preferences"
+        >
+          <GearIcon className="w-4 h-4" />
+        </button>
+        <button
+          onClick={fetchConditions}
+          className="bg-blue-600 text-white px-4 py-1 rounded h-[32px]"
+        >
+          Check
         </button>
       </div>
 
-      {showSettings && (
-        <div className="mb-4 p-4 bg-gray-800 rounded">
-          <div className="text-white font-bold mb-2">Activity Settings</div>
-          {renderSlider('Tide Height (ft)', -2, 15, 1, tideRange, setTideRange, 'ft')}
-          {renderSlider('Temperature (°F)', 0, 120, 1, temperatureRange, setTemperatureRange, '°F')}
-          {renderSlider('Wind Speed (mph)', 0, 40, 1, windSpeedRange, setWindSpeedRange, 'mph')}
-          {renderSlider('Sky Cover (%)', 0, 100, 1, skyCoverRange, setSkyCoverRange, '%')}
-          {renderSlider('Precipitation Chance (%)', 0, 100, 1, precipChanceRange, setPrecipChanceRange, '%')}
-          {renderSlider('Daylight Hours', 0, 1439, 15, daylightRange, (val) => {
-            setDaylightRange(val);
-            localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(val));
-          }, 'min')}
 
+      {showSettings && (
+        <div className="mb-6 border rounded p-4" style={{ backgroundColor: 'rgb(106, 90, 205)' }}>
+          <h2 className="text-lg font-semibold text-white mb-4">
+            Ideal conditions for {activity.charAt(0).toUpperCase() + activity.slice(1)}
+          </h2>
+          {renderSlider('Tide (ft)', scoringConfig.tideMin, scoringConfig.tideMax, 0.1, tideRange, setTideRange, 'ft')}
+          {renderSlider('Temperature (°F)', scoringConfig.temperatureMin, scoringConfig.temperatureMax, 1, temperatureRange, setTemperatureRange, '°F')}
+          {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph')}
+          {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%')}
+          {renderSlider('Precipitation Chance (%)', scoringConfig.precipChanceMin, scoringConfig.precipChanceMax, 1, precipChanceRange, setPrecipChanceRange, '%')}
+          {renderSlider('Daylight Hours', 0, 1439, 15, daylightRange, setDaylightRange, 'min')}
           <div className="mt-4 flex justify-between items-center gap-2">
             <button
               onClick={handleRestoreDefaults}
@@ -213,7 +299,7 @@ function App() {
             </button>
             <button
               onClick={handleApplySettings}
-              className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+              className="text-sm bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
             >
               Apply
             </button>
@@ -221,32 +307,57 @@ function App() {
         </div>
       )}
 
-      <div className="grid gap-2">
-        {forecast.map((entry, idx) => (
-          <div
-            key={idx}
-            className={`rounded p-2 text-white ${getScoreColor(entry.score)}`}
-            onClick={() => setSelectedHour(entry)}
-          >
-            {formatDateTime(entry.time, timeZone)} — Score: {entry.score}
-          </div>
-        ))}
-      </div>
+      {!showSettings && (
+        <div className="h-[500px] overflow-y-auto space-y-2">
+          {loading && <p>Loading...</p>}
+          {forecast.map((hour, idx) => (
+            <div
+              key={idx}
+              className={`flex items-center justify-between px-4 py-2 rounded cursor-pointer ${getScoreColor(hour.score)} ${selectedHour === idx ? 'border-4 border-white' : ''}`}
+              onClick={() => setSelectedHour(selectedHour === idx ? null : idx)}
+            >
+              <div className="text-sm font-mono text-white">
+                {formatDateTime(hour.time)}
+              </div>
+              <div className="text-white font-bold">&nbsp;</div>
+            </div>
+          ))}
+        </div>
+      )}
 
-      {selectedHour && (
-        <div className="mt-4 p-4 border rounded bg-white text-black">
-          <div className="font-bold mb-1">Details</div>
-          <div>{formatDetailDateTime(selectedHour.time, timeZone)}</div>
-          <div>Temperature: {selectedHour.temperature}°F</div>
-          <div>Wind: {selectedHour.windSpeed} mph ({selectedHour.windDirection})</div>
-          <div>Sky Cover: {selectedHour.skyCover}%</div>
-          <div>Precipitation: {selectedHour.precipChance}%</div>
-          <div>Tide Height: {selectedHour.tideHeight != null ? `${selectedHour.tideHeight} ft` : 'n/a'}</div>
-          <div>Water Temp: {selectedHour.waterTemp != null ? `${selectedHour.waterTemp}°F` : 'n/a'}</div>
+      {selectedHour !== null && forecast[selectedHour] && (
+        <div className="mt-6 p-4 border rounded bg-gray-800 text-white">
+          <h2 className="text-xl font-bold mb-2">
+            Details for {formatDetailDateTime(forecast[selectedHour].time)}
+          </h2>
+          <ul className="space-y-1">
+            <li>Temp: {forecast[selectedHour].temperature} °F</li>
+            <li>Wind: {forecast[selectedHour].windSpeed} mph from the {forecast[selectedHour].windDirection}</li>
+            <li>Precipitation: {forecast[selectedHour].precipChance}%</li>
+            <li>Sky Cover: {forecast[selectedHour].skyCover}%</li>
+            <li>Tide Height: {forecast[selectedHour].tideHeight ?? 'n/a'} ft</li>
+            {forecast[selectedHour].waterTemp !== 'n/a' && forecast[selectedHour].waterTemp !== null && (
+              <li>Water Temp: {forecast[selectedHour].waterTemp} °F</li>
+            )}
+            <li>Daylight: {forecast[selectedHour].isDaylight ? 'Yes' : 'No'}</li>
+            <li>Summary: {forecast[selectedHour].summary}</li>
+          </ul>
+          <p className="mt-4 text-sm text-gray-400">
+            Source: <a href="https://www.weather.gov/documentation/services-web-api" className="underline text-blue-300" target="_blank" rel="noopener noreferrer">NOAA Weather API</a> and <a href={`https://tidesandcurrents.noaa.gov/stationhome.html?id=${stationId}`} className="underline text-blue-300" target="_blank" rel="noopener noreferrer">NOAA Tides & Currents for Station {stationId}</a>
+            {stationDistance && <> ({parseInt(stationDistance)} miles away)</>}
+          </p>
         </div>
       )}
     </div>
   );
 }
+
+const formatMinutes = (mins) => {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+};
 
 export default App;

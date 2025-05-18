@@ -34,6 +34,7 @@ function App() {
   }, [zipCode]);
 
   const fetchConditions = async () => {
+    let newForecast = [];
     if (!zipCode) return;
     setLoading(true);
     // Default sunrise/sunset fallback
@@ -64,11 +65,12 @@ function App() {
       const response = await fetch(`https://the-ideal-time.onrender.com/conditions?${params.toString()}`);
       const data = await response.json();
       console.log('Forecast data:', data.forecast);
-      setForecast(data.forecast || []);
+      newForecast = data.forecast || [];
       setStationId(data.station_id || '');
       setStationName(data.station_name || '');
       setStationDistance(data.station_distance_miles || null);
       setTimeZone(data.timezone || 'America/New_York');
+      setForecast(scoreForecast(newForecast));
     } catch (error) {
       console.error('Error fetching conditions:', error);
     } finally {
@@ -137,7 +139,7 @@ function App() {
   };
 
   useEffect(() => {
-    setForecast(prev => scoreForecast(prev));
+    setForecast(scoreForecast(forecast));
   }, [activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange]);
 
   const formatDateTime = (isoString, timeZone = 'America/New_York') => {
@@ -169,7 +171,7 @@ function App() {
     <div className="mb-4">
       <label className="block text-sm font-semibold text-white mb-1">{label}</label>
       <div className="flex items-center gap-4">
-        <span className="text-sm w-10 text-gray-100">{min}</span>
+        {unit !== 'min' && <span className="text-sm w-10 text-gray-100">{min}</span>}
         <Range
           values={values}
           step={step}
@@ -224,7 +226,7 @@ function App() {
             />
           )}
         />
-        <span className="text-sm w-10 text-gray-100">{max}</span>
+        {unit !== 'min' && <span className="text-sm w-10 text-gray-100">{max}</span>}
       </div>
       <div className="text-sm mt-1 text-gray-300">
         Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : `${values[0]} ${unit} - ${values[1]} ${unit}`}

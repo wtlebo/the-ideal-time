@@ -217,8 +217,10 @@ function App() {
             );
           }}
           onChange={(values) => {
-            setDaylightRange(values);
-            localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
+            setValues(values);
+            if (unit === 'min') {
+              localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
+            }
           }}
           renderThumb={({ props }) => (
             <div

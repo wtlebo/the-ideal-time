@@ -22,7 +22,10 @@ function App() {
   const [windSpeedRange, setWindSpeedRange] = useState(scoringConfig.windSpeedRange);
   const [skyCoverRange, setSkyCoverRange] = useState(scoringConfig.skyCoverRange);
   const [precipChanceRange, setPrecipChanceRange] = useState(scoringConfig.precipChanceRange);
-  const [requireDaylight, setRequireDaylight] = useState(scoringConfig.requireDaylight);
+  const [daylightRange, setDaylightRange] = useState(() => {
+    const stored = localStorage.getItem('daylightRange');
+    return stored ? JSON.parse(stored) : [360, 1080];
+  }); // 6:00 AM to 6:00 PM
 
   useEffect(() => {
     if (zipCode) {
@@ -33,6 +36,24 @@ function App() {
   const fetchConditions = async () => {
     if (!zipCode) return;
     setLoading(true);
+    // Default sunrise/sunset fallback
+    const sunrise = 360; // 6 AM
+    const sunset = 1080; // 6 PM
+    try {
+      const sunResponse = await fetch(`https://api.sunrise-sunset.org/json?lat=42.36&lng=-71.06&formatted=0`);
+      const sunData = await sunResponse.json();
+      const sunriseDate = new Date(sunData.results.sunrise);
+      const sunsetDate = new Date(sunData.results.sunset);
+      const minutesFromMidnight = d => d.getUTCHours() * 60 + d.getUTCMinutes();
+      const newRange = [minutesFromMidnight(sunriseDate), minutesFromMidnight(sunsetDate)];
+      setDaylightRange(newRange);
+      localStorage.setItem('daylightRange', JSON.stringify(newRange));
+    } catch (e) {
+      console.warn('Could not fetch sunrise/sunset:', e);
+      const fallbackRange = [sunrise, sunset];
+      setDaylightRange(fallbackRange);
+      localStorage.setItem('daylightRange', JSON.stringify(fallbackRange));
+    }
     setSelectedHour(null);
     localStorage.setItem('zipCode', zipCode);
     try {
@@ -66,6 +87,21 @@ function App() {
     }
   };
 
+  const handleSnapToSun = async () => {
+    try {
+      const sunResponse = await fetch(`https://api.sunrise-sunset.org/json?lat=42.36&lng=-71.06&formatted=0`);
+      const sunData = await sunResponse.json();
+      const sunriseDate = new Date(sunData.results.sunrise);
+      const sunsetDate = new Date(sunData.results.sunset);
+      const minutesFromMidnight = d => d.getUTCHours() * 60 + d.getUTCMinutes();
+      const newRange = [minutesFromMidnight(sunriseDate), minutesFromMidnight(sunsetDate)];
+      setDaylightRange(newRange);
+      localStorage.setItem('daylightRange', JSON.stringify(newRange));
+    } catch (e) {
+      console.warn('Could not snap to sunrise/sunset:', e);
+    }
+  };
+
   const handleRestoreDefaults = () => {
     const defaults = activityDefaults[activity];
     setTideRange(defaults.tideRange);
@@ -73,7 +109,9 @@ function App() {
     setWindSpeedRange(defaults.windSpeedRange);
     setSkyCoverRange(defaults.skyCoverRange);
     setPrecipChanceRange(defaults.precipChanceRange);
-    setRequireDaylight(defaults.requireDaylight);
+    const defaultDaylight = [360, 1080];
+    setDaylightRange(defaultDaylight);
+    localStorage.setItem('daylightRange', JSON.stringify(defaultDaylight));
   };
 
   const handleApplySettings = () => {
@@ -113,7 +151,8 @@ function App() {
       if (entry.windSpeed !== null && windSpeedRange[0] <= entry.windSpeed && entry.windSpeed <= windSpeedRange[1]) score++;
       if (entry.skyCover !== null && skyCoverRange[0] <= entry.skyCover && entry.skyCover <= skyCoverRange[1]) score++;
       if (entry.precipChance !== null && precipChanceRange[0] <= entry.precipChance && entry.precipChance <= precipChanceRange[1]) score++;
-      if (!requireDaylight || entry.isDaylight) score++;
+      const entryMinutes = new Date(entry.time).getHours() * 60 + new Date(entry.time).getMinutes();
+      if (entryMinutes >= daylightRange[0] && entryMinutes <= daylightRange[1]) score++;
       return { ...entry, score };
     });
   };
@@ -205,7 +244,7 @@ function App() {
         <span className="text-sm w-10 text-gray-100">{max}</span>
       </div>
       <div className="text-sm mt-1 text-gray-300">
-        Selected: {values[0] === min ? 'No minimum' : `${values[0]} ${unit}`} - {values[1] === max ? 'No maximum' : `${values[1]} ${unit}`}
+        Selected: {formatMinutes(values[0])} - {formatMinutes(values[1])}
       </div>
     </div>
   );
@@ -267,18 +306,14 @@ function App() {
           {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph')}
           {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%')}
           {renderSlider('Precipitation Chance (%)', scoringConfig.precipChanceMin, scoringConfig.precipChanceMax, 1, precipChanceRange, setPrecipChanceRange, '%')}
-          <div className="mt-4">
-            <label className="inline-flex items-center text-sm text-white">
-              <input
-                type="checkbox"
-                checked={requireDaylight}
-                onChange={(e) => setRequireDaylight(e.target.checked)}
-                className="mr-2"
-              />
-              Require daylight
-            </label>
-          </div>
-          <div className="mt-4 flex justify-between">
+          {renderSlider('Daylight Hours', 0, 1439, 15, daylightRange, setDaylightRange, 'min')}
+          <div className="mt-4 flex justify-between items-center gap-2">
+            <button
+              onClick={handleSnapToSun}
+              className="text-sm bg-yellow-300 hover:bg-yellow-400 text-black px-2 py-1 rounded"
+            >
+              Snap to Sunrise/Sunset
+            </button>
             <button
               onClick={handleRestoreDefaults}
               className="text-sm bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded"
@@ -339,5 +374,13 @@ function App() {
     </div>
   );
 }
+
+const formatMinutes = (mins) => {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+};
 
 export default App;

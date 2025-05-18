@@ -10,6 +10,8 @@ function App() {
   const [stationId, setStationId] = useState('');
   const [stationName, setStationName] = useState('');
   const [stationDistance, setStationDistance] = useState(null);
+  const [locationName, setLocationName] = useState('');
+  const [zipError, setZipError] = useState(false);
   const [timeZone, setTimeZone] = useState('America/New_York');
   const [selectedHour, setSelectedHour] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -51,28 +53,25 @@ function App() {
 
   const fetchConditions = async () => {
     let newForecast = [];
+    setZipError(false);
+    setLocationName('');
     if (!zipCode) return;
     setLoading(true);
     // Default sunrise/sunset fallback
     const sunrise = 360; // 6 AM
     const sunset = 1080; // 6 PM
     try {
-      const sunResponse = await fetch(`https://api.sunrise-sunset.org/json?lat=42.36&lng=-71.06&formatted=0`);
-      const sunData = await sunResponse.json();
-      const sunriseDate = new Date(sunData.results.sunrise);
-      const sunsetDate = new Date(sunData.results.sunset);
-      const minutesFromMidnight = d => d.getUTCHours() * 60 + d.getUTCMinutes();
-      const newRange = [minutesFromMidnight(sunriseDate), minutesFromMidnight(sunsetDate)].sort((a, b) => a - b);
-      setDaylightRange($1.map(v => Math.round(v / 15) * 15));
-      localStorage.setItem('daylightRange', JSON.stringify(newRange));
+      const geoRes = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${zipCode}&key=${import.meta.env.VITE_OPENCAGE_API_KEY}`);
+      const geoData = await geoRes.json();
+      if (geoData.results.length > 0) {
+        const { city, town, village, state_code } = geoData.results[0].components;
+        const cityName = city || town || village || '';
+        setLocationName(`${cityName}, ${state_code}`);
+      }
     } catch (e) {
-      console.warn('Could not fetch sunrise/sunset:', e);
-      const fallbackRange = [sunrise, sunset];
-      setDaylightRange(fallbackRange);
-      localStorage.setItem('daylightRange', JSON.stringify(fallbackRange));
+      console.warn('Could not fetch city/state:', e);
     }
-    setSelectedHour(null);
-    localStorage.setItem('zipCode', zipCode);
+
     try {
       const params = new URLSearchParams({
         zip: zipCode,
@@ -86,7 +85,12 @@ function App() {
       setStationName(data.station_name || '');
       setStationDistance(data.station_distance_miles || null);
       setTimeZone(data.timezone || 'America/New_York');
-      setForecast(scoreForecast(newForecast));
+      if (newForecast.length > 0) {
+        setForecast(scoreForecast(newForecast));
+      } else {
+        setForecast([]);
+        setZipError(true);
+      }
     } catch (error) {
       console.error('Error fetching conditions:', error);
     } finally {
@@ -263,11 +267,11 @@ function App() {
 
       {loading && (
         <div className="flex justify-center mb-2">
-          <div className="animate-spin rounded-full h-6 w-6 border-t-4 border-b-4 border-blue-500"></div>
+          
         </div>
       )}
 
-      <div className="flex gap-2 items-center mb-4">
+      <div className="flex gap-2 items-center mb-1">
         <input
           type="text"
           placeholder="ZIP"
@@ -301,9 +305,17 @@ function App() {
         </button>
       </div>
 
+      {locationName && (
+        <div className="text-sm text-center text-gray-300 mb-2">{locationName}</div>
+      )}
+
+      {zipError && (
+        <div className="text-red-500 text-center font-semibold mb-4">Please enter a valid ZIP code</div>
+      )}
+
 
       {showSettings && (
-        <div className="mb-6 border rounded p-4" style={{ backgroundColor: 'rgb(106, 90, 205)' }}>
+        <div className="mb-6 border rounded p-4 bg-gray-800">
           <h2 className="text-lg font-semibold text-white mb-4">
             Ideal conditions for {activity.charAt(0).toUpperCase() + activity.slice(1)}
           </h2>
@@ -330,8 +342,8 @@ function App() {
         </div>
       )}
 
-      {!showSettings && (
-        <div className="h-[500px] overflow-y-auto space-y-2">
+      {!showSettings && !zipError && (
+        <div className="h-[500px] overflow-y-auto space-y-1">
           {loading && <p>Loading...</p>}
           {forecast.map((hour, idx) => (
             <div

@@ -60,24 +60,6 @@ def find_closest_tide_station(lat, lon):
 
     return closest_station['id'], closest_station['name'], min_distance
 
-def score_conditions(entry, thresholds, require_daylight):
-    factors_met = 0
-
-    if entry['tideHeight'] is not None and thresholds['tideMin'] <= entry['tideHeight'] <= thresholds['tideMax']:
-        factors_met += 1
-    if entry['temperature'] is not None and thresholds['tempMin'] <= entry['temperature'] <= thresholds['tempMax']:
-        factors_met += 1
-    if entry['windSpeed'] is not None and thresholds['windMin'] <= entry['windSpeed'] <= thresholds['windMax']:
-        factors_met += 1
-    if entry['skyCover'] is not None and thresholds['skyMin'] <= entry['skyCover'] <= thresholds['skyMax']:
-        factors_met += 1
-    if entry['precipChance'] is not None and thresholds['precipMin'] <= entry['precipChance'] <= thresholds['precipMax']:
-        factors_met += 1
-    if not require_daylight or entry.get('isDaylight'):
-        factors_met += 1
-
-    return factors_met
-
 def get_tide_predictions(station_id, lat, lon):
     now = datetime.utcnow()
     start = now.strftime('%Y%m%d')
@@ -97,19 +79,13 @@ def get_tide_predictions(station_id, lat, lon):
     tide_by_time = {}
     for p in predictions:
         try:
-            # NOAA gives local time without timezone info
             naive_local = datetime.strptime(p['t'], "%Y-%m-%d %H:%M")
-            ts = local_tz.localize(naive_local)  # Add correct tz info (including DST)
+            ts = local_tz.localize(naive_local)
             tide_by_time[ts.isoformat()] = float(p['v'])
         except Exception as e:
             print(f"Skipping tide prediction due to error: {e}")
             continue
-    print("Sample tide time:", ts.isoformat())
-    print("local_tz:", local_tz)
     return tide_by_time
-
-
-
 
 def get_water_temperature(station_id):
     now = datetime.utcnow()
@@ -129,7 +105,7 @@ def get_water_temperature(station_id):
             continue
     return None
 
-def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, thresholds=None, require_daylight=False, tz_name="America/New_York"):
+def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, tz_name="America/New_York"):
     headers = {'User-Agent': 'WaterActivityApp (wtlebo@gmail.com)'}
 
     points_url = f'https://api.weather.gov/points/{lat},{lon}'
@@ -196,37 +172,15 @@ def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, thresholds=No
             next_val = next((clean_data[j]['skyCover'] for j in range(i + 1, len(clean_data)) if clean_data[j]['skyCover'] is not None), None)
             entry['skyCover'] = round((prev + next_val) / 2) if prev and next_val else (prev or next_val or 0)
 
-    for entry in clean_data:
-        entry['score'] = score_conditions(entry, thresholds, require_daylight)
-
     return clean_data
-
 
 @app.route('/conditions')
 def get_conditions():
     zip_code = request.args.get('zip')
-    activity = request.args.get('activity', 'paddleboarding').lower()
-
-    thresholds = {
-        'tideMin': float(request.args.get('tideMin', -2)),
-        'tideMax': float(request.args.get('tideMax', 12)),
-        'tempMin': float(request.args.get('tempMin', -10)),
-        'tempMax': float(request.args.get('tempMax', 110)),
-        'windMin': float(request.args.get('windMin', 0)),
-        'windMax': float(request.args.get('windMax', 40)),
-        'skyMin': float(request.args.get('skyMin', 0)),
-        'skyMax': float(request.args.get('skyMax', 100)),
-        'precipMin': float(request.args.get('precipMin', 0)),
-        'precipMax': float(request.args.get('precipMax', 100)),
-    }
-
-    require_daylight = request.args.get('requireDaylight', 'false').lower() == 'true'
-
     lat, lon = zip_to_latlon(zip_code)
     if lat is None:
         return jsonify({'error': 'Invalid ZIP code'}), 400
 
-    from timezonefinder import TimezoneFinder
     tf = TimezoneFinder()
     tz_name = tf.timezone_at(lat=lat, lng=lon) or 'America/New_York'
 
@@ -236,8 +190,6 @@ def get_conditions():
 
     forecast_data = get_noaa_hourly_forecast(
         lat, lon, tide_data, water_temp,
-        thresholds=thresholds,
-        require_daylight=require_daylight,
         tz_name=tz_name
     )
 
@@ -251,7 +203,7 @@ def get_conditions():
         'station_id': station_id,
         'station_name': station_name,
         'station_distance_miles': round(distance_miles, 2),
-        'activity': activity,
-        'forecast': forecast_data
+        'activity': request.args.get('activity', 'paddleboarding'),
+        'forecast': forecast_data,
         'timezone': tz_name
     })

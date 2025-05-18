@@ -27,7 +27,7 @@ function App() {
     if (zipCode) {
       fetchConditions();
     }
-  }, [zipCode, activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, requireDaylight]);
+  }, [zipCode]);
 
   const fetchConditions = async () => {
     if (!zipCode) return;
@@ -76,7 +76,6 @@ function App() {
 
   const handleApplySettings = () => {
     setShowSettings(false);
-    fetchConditions();
   };
 
   const handleActivityChange = (e) => {
@@ -89,7 +88,6 @@ function App() {
     setSkyCoverRange(defaults.skyCoverRange);
     setPrecipChanceRange(defaults.precipChanceRange);
     setRequireDaylight(defaults.requireDaylight);
-    fetchConditions();
   };
 
   const handleKeyDown = (e) => {
@@ -104,6 +102,23 @@ function App() {
     if (score === 4) return 'bg-orange-400';
     return 'bg-red-500';
   };
+
+  const scoreForecast = (rawForecast) => {
+    return rawForecast.map(entry => {
+      let score = 0;
+      if (entry.tideHeight !== null && tideRange[0] <= entry.tideHeight && entry.tideHeight <= tideRange[1]) score++;
+      if (entry.temperature !== null && temperatureRange[0] <= entry.temperature && entry.temperature <= temperatureRange[1]) score++;
+      if (entry.windSpeed !== null && windSpeedRange[0] <= entry.windSpeed && entry.windSpeed <= windSpeedRange[1]) score++;
+      if (entry.skyCover !== null && skyCoverRange[0] <= entry.skyCover && entry.skyCover <= skyCoverRange[1]) score++;
+      if (entry.precipChance !== null && precipChanceRange[0] <= entry.precipChance && entry.precipChance <= precipChanceRange[1]) score++;
+      if (!requireDaylight || entry.isDaylight) score++;
+      return { ...entry, score };
+    });
+  };
+
+  useEffect(() => {
+    setForecast(prev => scoreForecast(prev));
+  }, [activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, requireDaylight]);
 
   const formatDateTime = (isoString, timeZone = 'America/New_York') => {
     const options = {
@@ -198,6 +213,18 @@ function App() {
       <div className="flex justify-center mb-4">
         <img src="/logo.png" alt="The Ideal Time" className="w-full max-h-96 object-contain" />
       </div>
+
+      {forecast.length > 0 && (
+        <div className="grid grid-cols-6 gap-1 mb-4">
+          {forecast.map((entry, idx) => (
+            <div
+              key={idx}
+              className={`h-6 rounded ${getScoreColor(entry.score)}`}
+              title={`${formatDateTime(entry.time, timeZone)}: Score ${entry.score}`}
+            ></div>
+          ))}
+        </div>
+      )}
 
       {loading && (
         <div className="flex justify-center mb-2">

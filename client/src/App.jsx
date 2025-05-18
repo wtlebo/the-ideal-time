@@ -45,7 +45,7 @@ function App() {
       const sunriseDate = new Date(sunData.results.sunrise);
       const sunsetDate = new Date(sunData.results.sunset);
       const minutesFromMidnight = d => d.getUTCHours() * 60 + d.getUTCMinutes();
-      const newRange = [minutesFromMidnight(sunriseDate), minutesFromMidnight(sunsetDate)];
+      const newRange = [minutesFromMidnight(sunriseDate), minutesFromMidnight(sunsetDate)].sort((a, b) => a - b);
       setDaylightRange(newRange);
       localStorage.setItem('daylightRange', JSON.stringify(newRange));
     } catch (e) {

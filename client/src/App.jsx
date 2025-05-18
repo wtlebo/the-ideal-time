@@ -178,7 +178,12 @@ function App() {
           step={step}
           min={min}
           max={max}
-          onChange={setValues}
+          onChange={(values) => {
+            setValues(values);
+            if (unit === 'min') {
+              localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
+            }
+          }}
           renderTrack={({ props, children }) => {
             const trackStyle = {
               height: '6px',

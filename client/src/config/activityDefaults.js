@@ -15,6 +15,9 @@ export const activityDefaults = {
     precipChanceMin: 0,
     precipChanceMax: 100,
     precipChanceRange: [0, 40],
+    daylightMin: 0, // 12:00 AM
+    daylightMax: 1439, // 11:59 PM
+    daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
     requireDaylight: true
   },
   polarplunging: {
@@ -33,6 +36,9 @@ export const activityDefaults = {
     precipChanceMin: 0,
     precipChanceMax: 100,
     precipChanceRange: [0, 50],
+    daylightMin: 0, // 12:00 AM
+    daylightMax: 1439, // 11:59 PM
+    daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
     requireDaylight: false
   },
   sailing: {
@@ -51,9 +57,12 @@ export const activityDefaults = {
     precipChanceMin: 0,
     precipChanceMax: 100,
     precipChanceRange: [0, 30],
+    daylightMin: 0, // 12:00 AM
+    daylightMax: 1439, // 11:59 PM
+    daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
     requireDaylight: true
   },
-  powerboating: {
+  motorboating: {
     tideMin: -2,
     tideMax: 15,
     tideRange: [5, 15],
@@ -69,6 +78,9 @@ export const activityDefaults = {
     precipChanceMin: 0,
     precipChanceMax: 100,
     precipChanceRange: [0, 30],
+    daylightMin: 0, // 12:00 AM
+    daylightMax: 1439, // 11:59 PM
+    daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
     requireDaylight: true
   },
   running: {
@@ -87,6 +99,9 @@ export const activityDefaults = {
     precipChanceMin: 0,
     precipChanceMax: 100,
     precipChanceRange: [0, 20],
+    daylightMin: 0, // 12:00 AM
+    daylightMax: 1439, // 11:59 PM
+    daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
     requireDaylight: false
   },
   surfing: {
@@ -105,6 +120,9 @@ export const activityDefaults = {
     precipChanceMin: 0,
     precipChanceMax: 100,
     precipChanceRange: [0, 20],
+    daylightMin: 0, // 12:00 AM
+    daylightMax: 1439, // 11:59 PM
+    daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
     requireDaylight: true
   }
 };

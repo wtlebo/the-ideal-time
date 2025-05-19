@@ -40,9 +40,9 @@ function App() {
     return stored ? JSON.parse(stored) : scoringConfig.precipChanceRange;
   });
   const [daylightRange, setDaylightRange] = useState(() => {
-    const stored = localStorage.getItem('daylightRange');
-    return stored ? JSON.parse(stored) : [360, 1080];
-  }); // 6:00 AM to 6:00 PM
+    const stored = localStorage.getItem(`daylight_range___${activity}`);
+    return stored ? JSON.parse(stored) : scoringConfig.daylightRange;
+  });
 
   useEffect(() => {
     if (/^\d{5}$/.test(zipCode)) {
@@ -106,9 +106,8 @@ function App() {
     setWindSpeedRange(defaults.windSpeedRange);
     setSkyCoverRange(defaults.skyCoverRange);
     setPrecipChanceRange(defaults.precipChanceRange);
-    const defaultDaylight = [360, 1080];
-    setDaylightRange(defaultDaylight);
-    localStorage.setItem('daylightRange', JSON.stringify(defaultDaylight));
+    setDaylightRange(defaults.daylightRange);
+    //localStorage.setItem('daylightRange', JSON.stringify(defaultDaylight)); //delete this?
   };
 
   const handleApplySettings = () => {
@@ -124,10 +123,11 @@ function App() {
     setWindSpeedRange(defaults.windSpeedRange);
     setSkyCoverRange(defaults.skyCoverRange);
     setPrecipChanceRange(defaults.precipChanceRange);
-    const storedDaylight = localStorage.getItem(`daylightRange_${selected}`);
-    if (storedDaylight) {
-      setDaylightRange(JSON.parse(storedDaylight));
-    }
+    setDaylightRange(defaults.daylightRange);
+    //const storedDaylight = localStorage.getItem(`daylightRange_${selected}`);
+    //if (storedDaylight) {
+    //  setDaylightRange(JSON.parse(storedDaylight));
+    //}
   };
 
   const handleKeyDown = (e) => {
@@ -318,12 +318,12 @@ function App() {
           <h2 className="text-lg font-semibold text-white mb-4">
             Ideal conditions for {activity.charAt(0).toUpperCase() + activity.slice(1)}
           </h2>
-          {renderSlider('Tide (ft)', scoringConfig.tideMin, scoringConfig.tideMax, 0.1, tideRange, setTideRange, 'ft')}
+          {renderSlider('Time of Day', daylightMin, daylightMax, 15, daylightRange, setDaylightRange, 'min')}
           {renderSlider('Temperature (°F)', scoringConfig.temperatureMin, scoringConfig.temperatureMax, 1, temperatureRange, setTemperatureRange, '°F')}
           {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph')}
           {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%')}
           {renderSlider('Precipitation Chance (%)', scoringConfig.precipChanceMin, scoringConfig.precipChanceMax, 1, precipChanceRange, setPrecipChanceRange, '%')}
-          {renderSlider('Time of Day', 0, 1439, 15, daylightRange, setDaylightRange, 'min')}
+          {renderSlider('Tide (ft)', scoringConfig.tideMin, scoringConfig.tideMax, 0.1, tideRange, setTideRange, 'ft')}
           <div className="mt-4 flex justify-between items-center gap-2">
             <button
               onClick={handleRestoreDefaults}

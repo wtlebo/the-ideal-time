@@ -10,7 +10,16 @@ import math
 import ephem
 
 app = Flask(__name__)
-CORS(app, origins=["https://the-ideal-time-frontend.onrender.com"])
+
+# Get frontend URL from environment variable
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://the-ideal-time-frontend.onrender.com')
+
+# Allow both development and production frontend URLs
+CORS(app, origins=[
+    "https://the-ideal-time-frontend.onrender.com",  # Development
+    "https://theidealtime.com",  # Production
+    FRONTEND_URL  # Environment variable override
+])
 
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
 

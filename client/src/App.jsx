@@ -12,7 +12,15 @@ if (typeof window !== 'undefined') {
   }
   window.gtag = gtag;
   gtag('js', new Date());
-  gtag('config', process.env.REACT_APP_GA_MEASUREMENT_ID);
+  
+  // Use different GA IDs for development and production
+  const gaId = process.env.NODE_ENV === 'development' 
+    ? process.env.REACT_APP_GA_MEASUREMENT_ID_DEV 
+    : process.env.REACT_APP_GA_MEASUREMENT_ID;
+  
+  if (gaId) {
+    gtag('config', gaId);
+  }
 }
 
 function App() {

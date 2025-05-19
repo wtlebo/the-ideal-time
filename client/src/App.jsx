@@ -2,8 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { Range } from 'react-range';
 import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
+import { trackPageView, trackEvent } from './config/analytics';
+
+// Initialize Google Analytics
+if (typeof window !== 'undefined') {
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', process.env.REACT_APP_GA_MEASUREMENT_ID);
+}
 
 function App() {
+  // Track initial page view
+  useEffect(() => {
+    trackPageView('/');
+  }, []);
   const [zipCode, setZipCode] = useState(() => localStorage.getItem('zipCode') || '');
   const [activity, setActivity] = useState('paddleboarding');
   const [forecast, setForecast] = useState([]);

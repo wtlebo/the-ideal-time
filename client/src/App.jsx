@@ -318,7 +318,7 @@ function App() {
           <h2 className="text-lg font-semibold text-white mb-4">
             Ideal conditions for {activity.charAt(0).toUpperCase() + activity.slice(1)}
           </h2>
-          {renderSlider('Time of Day', daylightMin, daylightMax, 15, daylightRange, setDaylightRange, 'min')}
+          {renderSlider('Time of Day', scoringConfig.daylightMin, scoringConfig.daylightMax, 15, daylightRange, setDaylightRange, 'min')}
           {renderSlider('Temperature (°F)', scoringConfig.temperatureMin, scoringConfig.temperatureMax, 1, temperatureRange, setTemperatureRange, '°F')}
           {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph')}
           {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%')}

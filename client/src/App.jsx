@@ -49,8 +49,6 @@ function App() {
       {/* Rest of your app component JSX */}
     </>
   );
-  const [loading, setLoading] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
 
   const scoringConfig = activityDefaults[activity];
 

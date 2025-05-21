@@ -19,7 +19,13 @@ function App() {
 
   // Track page view
   useEffect(() => {
-    trackPageView(window.location.pathname);
+    console.log('GA: Attempting to track page view');
+    if (typeof window.gtag === 'function') {
+      console.log('GA: gtag function found');
+      trackPageView(window.location.pathname);
+    } else {
+      console.log('GA: gtag function NOT found');
+    }
   }, []);
 
   const scoringConfig = activityDefaults[activity];
@@ -57,7 +63,13 @@ function App() {
 
 
   const fetchConditions = async () => {
-    trackEvent('zip_search', { zip_code: zipCode });
+    console.log('GA: Attempting to track zip search', { zipCode });
+    if (typeof window.gtag === 'function') {
+      console.log('GA: gtag function found');
+      trackEvent('zip_search', { zip_code: zipCode });
+    } else {
+      console.log('GA: gtag function NOT found');
+    }
     let newForecast = [];
     setZipError(false);
     setLocationName('');
@@ -117,6 +129,23 @@ function App() {
   };
 
   const handleApplySettings = () => {
+    console.log('GA: Attempting to track settings applied');
+    if (typeof window.gtag === 'function') {
+      console.log('GA: gtag function found');
+      trackEvent('settings_applied', {
+        activity,
+        settings: {
+          tideRange,
+          temperatureRange,
+          windSpeedRange,
+          skyCoverRange,
+          precipChanceRange,
+          daylightRange
+        }
+      });
+    } else {
+      console.log('GA: gtag function NOT found');
+    }
     trackEvent('settings_applied', {
       activity,
       settings: {
@@ -132,6 +161,13 @@ function App() {
   };
 
   const handleActivityChange = (e) => {
+    console.log('GA: Attempting to track activity change', { new_activity: e.target.value });
+    if (typeof window.gtag === 'function') {
+      console.log('GA: gtag function found');
+      trackEvent('activity_changed', { new_activity: e.target.value });
+    } else {
+      console.log('GA: gtag function NOT found');
+    }
     const selected = e.target.value;
     trackEvent('activity_changed', { new_activity: selected });
     setActivity(selected);

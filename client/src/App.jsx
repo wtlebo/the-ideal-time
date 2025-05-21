@@ -3,8 +3,6 @@ import { Range } from 'react-range';
 import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 import { trackPageView, trackEvent } from './config/analytics';
-import GoogleAnalytics from './components/GoogleAnalytics';
-
 function App() {
   const [zipCode, setZipCode] = useState(() => localStorage.getItem('zipCode') || '');
   const [activity, setActivity] = useState('paddleboarding');
@@ -48,7 +46,6 @@ function App() {
 
   return (
     <>
-      <GoogleAnalytics />
       {/* Rest of your app component JSX */}
     </>
   );

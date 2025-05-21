@@ -1,47 +1,26 @@
+import { initialize, pageview, event } from 'react-ga4';
+
 // Initialize GA4
-window.dataLayer = window.dataLayer || [];
-window.gtag = window.gtag || function() {
-  window.dataLayer.push(arguments);
-};
-
-gtag('js', new Date());
-gtag('config', 'G-XFNFXH80SX');
-
-// Queue for events before GA is ready
-window._gaQueue = window._gaQueue || [];
+initialize('G-XFNFXH80SX');
 
 // Export tracking functions
 export const trackPageView = (page) => {
-  // Queue the event
-  window._gaQueue.push(['event', 'page_view', {
-    page_path: page
-  }]);
-  
-  // Process queue if GA is ready
-  if (typeof window.gtag === 'function') {
-    window._gaQueue.forEach(event => {
-      gtag(...event);
-    });
-    window._gaQueue = [];
-  } else {
-    console.log('GA: Event queued - waiting for GA to be ready');
+  console.log('GA: Attempting to track page view', { page });
+  try {
+    pageview(page);
+  } catch (error) {
+    console.error('GA: Error tracking page view:', error);
   }
 };
 
 export const trackEvent = (action, params = {}) => {
-  // Queue the event
-  window._gaQueue.push(['event', action, {
-    event_category: 'User Interaction',
-    ...params
-  }]);
-  
-  // Process queue if GA is ready
-  if (typeof window.gtag === 'function') {
-    window._gaQueue.forEach(event => {
-      gtag(...event);
+  console.log('GA: Attempting to track event', { action, params });
+  try {
+    event(action, {
+      category: 'User Interaction',
+      ...params
     });
-    window._gaQueue = [];
-  } else {
-    console.log('GA: Event queued - waiting for GA to be ready');
+  } catch (error) {
+    console.error('GA: Error tracking event:', error);
   }
 };

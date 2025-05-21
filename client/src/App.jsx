@@ -3,28 +3,55 @@ import { Range } from 'react-range';
 import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 import { trackPageView, trackEvent } from './config/analytics';
+import GoogleAnalytics from './components/GoogleAnalytics';
 
 function App() {
-  // Initialize and track page view
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      window.gtag = gtag;
-      gtag('js', new Date());
-      
-      const gaId = process.env.REACT_APP_GA_MEASUREMENT_ID;
-      if (gaId) {
-        gtag('config', gaId);
-        trackPageView('/');
-      }
-    }
-  }, []);
   const [zipCode, setZipCode] = useState(() => localStorage.getItem('zipCode') || '');
   const [activity, setActivity] = useState('paddleboarding');
   const [forecast, setForecast] = useState([]);
+  const [stationId, setStationId] = useState('');
+  const [stationName, setStationName] = useState('');
+  const [stationDistance, setStationDistance] = useState(null);
+  const [locationName, setLocationName] = useState('');
+  const [zipError, setZipError] = useState(false);
+  const [timeZone, setTimeZone] = useState('America/New_York');
+  const [selectedHour, setSelectedHour] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const scoringConfig = activityDefaults[activity];
+
+  const [tideRange, setTideRange] = useState(() => {
+    const stored = localStorage.getItem(`tide_ft_${activity}`);
+    return stored ? JSON.parse(stored) : scoringConfig.tideRange;
+  });
+  const [temperatureRange, setTemperatureRange] = useState(() => {
+    const stored = localStorage.getItem(`temperature_°f_${activity}`);
+    return stored ? JSON.parse(stored) : scoringConfig.temperatureRange;
+  });
+  const [windSpeedRange, setWindSpeedRange] = useState(() => {
+    const stored = localStorage.getItem(`windSpeed_mph_${activity}`);
+    return stored ? JSON.parse(stored) : scoringConfig.windSpeedRange;
+  });
+  const [skyCoverRange, setSkyCoverRange] = useState(() => {
+    const stored = localStorage.getItem(`skyCover_%_${activity}`);
+    return stored ? JSON.parse(stored) : scoringConfig.skyCoverRange;
+  });
+  const [precipChanceRange, setPrecipChanceRange] = useState(() => {
+    const stored = localStorage.getItem(`precipChance_%_${activity}`);
+    return stored ? JSON.parse(stored) : scoringConfig.precipChanceRange;
+  });
+  const [daylightRange, setDaylightRange] = useState(() => {
+    const stored = localStorage.getItem(`daylightRange_${activity}`);
+    return stored ? JSON.parse(stored) : scoringConfig.daylightRange;
+  });
+
+  return (
+    <>
+      <GoogleAnalytics />
+      {/* Rest of your app component JSX */}
+    </>
+  );
   const [stationId, setStationId] = useState('');
   const [stationName, setStationName] = useState('');
   const [stationDistance, setStationDistance] = useState(null);

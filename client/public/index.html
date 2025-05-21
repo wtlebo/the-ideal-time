@@ -10,13 +10,13 @@
       // Initialize GA4 before loading the script
       console.log('GA: Initializing GA4');
       window.dataLayer = window.dataLayer || [];
-      window.gtag = window.gtag || function(){
+      window.gtag = function() {
         dataLayer.push(arguments);
       };
       gtag('js', new Date());
       gtag('config', 'G-XFNFXH80SX');
-      
-      // Add script element directly
+    </script>
+    <script>
       const script = document.createElement('script');
       script.src = 'https://www.googletagmanager.com/gtag/js?id=G-XFNFXH80SX';
       script.async = true;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Range } from 'react-range';
 import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
-import { trackPageView, trackEvent } from './config/analytics';
+import { trackPageView, trackEvent } from './utils/ga';
 
 // Test log to verify app loading
 console.log('APP: Application loaded');
@@ -21,15 +21,14 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  // Track page view
+  // Initialize GA
   useEffect(() => {
-    console.log('GA: Attempting to track page view');
-    if (typeof window.ga === 'function') {
-      console.log('GA: ga function found');
-      trackPageView(window.location.pathname);
-    } else {
-      console.log('GA: ga function NOT found');
-    }
+    initializeGA();
+  }, []);
+
+  useEffect(() => {
+    console.log('GA: Attempting to track page view', { page: window.location.pathname });
+    trackPageView(window.location.pathname);
   }, []);
 
   const scoringConfig = activityDefaults[activity];
@@ -68,12 +67,7 @@ function App() {
 
   const fetchConditions = async () => {
     console.log('GA: Attempting to track zip search', { zipCode });
-    if (typeof window.ga === 'function') {
-      console.log('GA: ga function found');
-      trackEvent('zip_search', { zip_code: zipCode });
-    } else {
-      console.log('GA: ga function NOT found');
-    }
+    trackEvent('zip_search', { zip_code: zipCode });
     let newForecast = [];
     setZipError(false);
     setLocationName('');

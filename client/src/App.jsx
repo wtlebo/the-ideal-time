@@ -49,13 +49,6 @@ function App() {
       {/* Rest of your app component JSX */}
     </>
   );
-  const [stationId, setStationId] = useState('');
-  const [stationName, setStationName] = useState('');
-  const [stationDistance, setStationDistance] = useState(null);
-  const [locationName, setLocationName] = useState('');
-  const [zipError, setZipError] = useState(false);
-  const [timeZone, setTimeZone] = useState('America/New_York');
-  const [selectedHour, setSelectedHour] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 

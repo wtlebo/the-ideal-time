@@ -1,7 +1,7 @@
 {
-  "name": "water-activity-backend",
+  "name": "the-ideal-time-backend-dev",
   "version": "1.0.0",
-  "description": "Backend service for Water Activity Website",
+  "description": "Development backend service for The Ideal Time Website",
   "main": "./server/server.js",
   "scripts": {
     "start": "node ./server/server.js"

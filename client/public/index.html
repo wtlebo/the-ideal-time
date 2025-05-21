@@ -7,20 +7,12 @@
     <title>The Ideal Time</title>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script>
-      // Initialize GA4 before loading the script
-      console.log('GA: Initializing GA4 before script load');
       window.dataLayer = window.dataLayer || [];
-      window.gtag = function() {
-        console.log('GA: Queueing event:', arguments);
-        dataLayer.push(arguments);
-      };
+      function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-XFNFXH80SX');
-      console.log('GA: GA4 initialization complete');
     </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XFNFXH80SX" 
-            onload="console.log('GA: GA4 script loaded')" 
-            onerror="console.error('GA: GA4 script failed to load')"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XFNFXH80SX"></script>
   </head>
   <body>
     <div id="root"></div>

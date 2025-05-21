@@ -70,12 +70,10 @@ function App() {
     const sunrise = 360; // 6 AM
     const sunset = 1080; // 6 PM
     try {
-      const geoRes = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${zipCode}&countrycode=us&key=${import.meta.env.VITE_OPENCAGE_API_KEY}`);
+      const geoRes = await fetch(`https://the-ideal-time.onrender.com/geocode?zip=${zipCode}`);
       const geoData = await geoRes.json();
-      if (geoData.results.length > 0) {
-        const { city, town, village, state_code } = geoData.results[0].components;
-        const cityName = city || town || village || '';
-        setLocationName(`${cityName}, ${state_code}`);
+      if (geoData.city && geoData.state) {
+        setLocationName(`${geoData.city}, ${geoData.state}`);
       }
     } catch (e) {
       console.warn('Could not fetch city/state:', e);

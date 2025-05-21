@@ -44,39 +44,6 @@ function App() {
     return stored ? JSON.parse(stored) : scoringConfig.daylightRange;
   });
 
-  return (
-    <>
-      {/* Rest of your app component JSX */}
-    </>
-  );
-
-  const scoringConfig = activityDefaults[activity];
-
-  const [tideRange, setTideRange] = useState(() => {
-    const stored = localStorage.getItem(`tide_ft_${activity}`);
-    return stored ? JSON.parse(stored) : scoringConfig.tideRange;
-  });
-  const [temperatureRange, setTemperatureRange] = useState(() => {
-    const stored = localStorage.getItem(`temperature_°f_${activity}`);
-    return stored ? JSON.parse(stored) : scoringConfig.temperatureRange;
-  });
-  const [windSpeedRange, setWindSpeedRange] = useState(() => {
-    const stored = localStorage.getItem(`wind_speed_mph_${activity}`);
-    return stored ? JSON.parse(stored) : scoringConfig.windSpeedRange;
-  });
-  const [skyCoverRange, setSkyCoverRange] = useState(() => {
-    const stored = localStorage.getItem(`sky_cover___${activity}`);
-    return stored ? JSON.parse(stored) : scoringConfig.skyCoverRange;
-  });
-  const [precipChanceRange, setPrecipChanceRange] = useState(() => {
-    const stored = localStorage.getItem(`precipitation_chance___${activity}`);
-    return stored ? JSON.parse(stored) : scoringConfig.precipChanceRange;
-  });
-  const [daylightRange, setDaylightRange] = useState(() => {
-    const stored = localStorage.getItem(`daylight_range___${activity}`);
-    return stored ? JSON.parse(stored) : scoringConfig.daylightRange;
-  });
-
   useEffect(() => {
     if (/^\d{5}$/.test(zipCode)) {
       fetchConditions();
@@ -231,7 +198,11 @@ function App() {
           max={max}
           onChange={(values) => {
             setValues(values);
-            localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${activity}`, JSON.stringify(values));
+            if (unit === 'min') {
+              localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
+            } else {
+              localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${activity}`, JSON.stringify(values));
+            }
           }}
           renderTrack={({ props, children }) => {
             const trackStyle = {
@@ -269,12 +240,6 @@ function App() {
                 {children}
               </div>
             );
-          }}
-          onChange={(values) => {
-            setValues(values);
-            if (unit === 'min') {
-              localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
-            }
           }}
           renderThumb={({ props }) => (
             <div

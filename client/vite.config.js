@@ -8,8 +8,11 @@ export default defineConfig({
       '/conditions': {
         target: process.env.VITE_API_URL || 'http://localhost:5000',
         changeOrigin: true,
-        secure: false,
+        secure: true,
       },
     },
+  },
+  build: {
+    base: process.env.NODE_ENV === 'production' ? '' : '/',
   },
 });

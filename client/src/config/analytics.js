@@ -6,6 +6,45 @@ export const GA_MEASUREMENT_ID = 'G-XFNFXH80SX';
 window.addEventListener('load', () => {
   console.log('GA: Window loaded, checking GA initialization');
   
+  // Wait for GA script to load
+  const waitForGAScript = () => {
+    return new Promise((resolve, reject) => {
+      let attempts = 0;
+      const maxAttempts = 10;
+      const checkInterval = 1000;
+      
+      const checkGA = () => {
+        attempts++;
+        
+        // Check if GA script is loaded
+        const script = document.querySelector('script[src*="gtag.js"]');
+        if (script && script.readyState === 'loaded') {
+          console.log('GA: GA script loaded successfully');
+          resolve(true);
+          return;
+        }
+        
+        // Check if GA function is available
+        if (typeof window.gtag === 'function') {
+          console.log('GA: gtag function found');
+          resolve(true);
+          return;
+        }
+        
+        if (attempts >= maxAttempts) {
+          console.error('GA: Failed to load after', maxAttempts, 'attempts');
+          reject(new Error('GA script failed to load'));
+          return;
+        }
+        
+        console.log('GA: Waiting for GA script to load... attempt', attempts);
+        setTimeout(checkGA, checkInterval);
+      };
+      
+      checkGA();
+    });
+  };
+
   // Initialize tracking queue
   window._gaQueue = window._gaQueue || [];
   
@@ -13,22 +52,19 @@ window.addEventListener('load', () => {
   window._gaQueue.push(['event', 'page_view', {
     page_path: window.location.pathname
   }]);
-  
-  // Process queued events when GA is ready
-  const processQueue = () => {
-    if (typeof window.gtag === 'function') {
-      console.log('GA: gtag function found, processing queue');
+
+  // Wait for GA to be ready before processing queue
+  waitForGAScript()
+    .then(() => {
+      console.log('GA: Processing queued events');
       window._gaQueue.forEach(event => {
         window.gtag(...event);
       });
-      window._gaQueue = []; // Clear the queue
-      return true;
-    }
-    return false;
-  };
-  
-  // Process queue immediately if GA is ready
-  processQueue();
+      window._gaQueue = [];
+    })
+    .catch(error => {
+      console.error('GA: Failed to initialize:', error);
+    });
 });
 
 export const trackPageView = (page) => {

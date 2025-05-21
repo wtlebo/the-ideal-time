@@ -8,16 +8,26 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script>
       // Initialize GA4 before loading the script
+      console.log('GA: Initializing GA4');
       window.dataLayer = window.dataLayer || [];
-      window.gtag = function() {
+      window.gtag = window.gtag || function(){
         dataLayer.push(arguments);
       };
       gtag('js', new Date());
       gtag('config', 'G-XFNFXH80SX');
+      
+      // Add script element directly
+      const script = document.createElement('script');
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-XFNFXH80SX';
+      script.async = true;
+      script.onload = () => {
+        console.log('GA: GA4 script loaded');
+      };
+      script.onerror = () => {
+        console.error('GA: GA4 script failed to load');
+      };
+      document.head.appendChild(script);
     </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XFNFXH80SX" 
-            onload="console.log('GA: GA4 script loaded')" 
-            onerror="console.error('GA: GA4 script failed to load')"></script>
   </head>
   <body>
     <div id="root"></div>

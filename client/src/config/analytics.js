@@ -6,45 +6,6 @@ export const GA_MEASUREMENT_ID = 'G-XFNFXH80SX';
 window.addEventListener('load', () => {
   console.log('GA: Window loaded, checking GA initialization');
   
-  // Wait for GA script to load
-  const waitForGAScript = () => {
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-      const maxAttempts = 10;
-      const checkInterval = 1000;
-      
-      const checkGA = () => {
-        attempts++;
-        
-        // Check if GA script is loaded
-        const script = document.querySelector('script[src*="gtag.js"]');
-        if (script && script.readyState === 'loaded') {
-          console.log('GA: GA script loaded successfully');
-          resolve(true);
-          return;
-        }
-        
-        // Check if GA function is available
-        if (typeof window.gtag === 'function') {
-          console.log('GA: gtag function found');
-          resolve(true);
-          return;
-        }
-        
-        if (attempts >= maxAttempts) {
-          console.error('GA: Failed to load after', maxAttempts, 'attempts');
-          reject(new Error('GA script failed to load'));
-          return;
-        }
-        
-        console.log('GA: Waiting for GA script to load... attempt', attempts);
-        setTimeout(checkGA, checkInterval);
-      };
-      
-      checkGA();
-    });
-  };
-
   // Initialize tracking queue
   window._gaQueue = window._gaQueue || [];
   
@@ -53,18 +14,14 @@ window.addEventListener('load', () => {
     page_path: window.location.pathname
   }]);
 
-  // Wait for GA to be ready before processing queue
-  waitForGAScript()
-    .then(() => {
-      console.log('GA: Processing queued events');
-      window._gaQueue.forEach(event => {
-        window.gtag(...event);
-      });
-      window._gaQueue = [];
-    })
-    .catch(error => {
-      console.error('GA: Failed to initialize:', error);
+  // Process queue immediately if GA is ready
+  if (typeof window.gtag === 'function') {
+    console.log('GA: gtag function found');
+    window._gaQueue.forEach(event => {
+      window.gtag(...event);
     });
+    window._gaQueue = [];
+  }
 });
 
 export const trackPageView = (page) => {
@@ -81,6 +38,8 @@ export const trackPageView = (page) => {
       window.gtag(...event);
     });
     window._gaQueue = []; // Clear the queue
+  } else {
+    console.log('GA: gtag function not available yet');
   }
 };
 
@@ -99,5 +58,7 @@ export const trackEvent = (action, params = {}) => {
       window.gtag(...event);
     });
     window._gaQueue = []; // Clear the queue
+  } else {
+    console.log('GA: gtag function not available yet');
   }
 };

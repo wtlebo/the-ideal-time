@@ -24,11 +24,11 @@ function App() {
   // Track page view
   useEffect(() => {
     console.log('GA: Attempting to track page view');
-    if (typeof window.gtag === 'function') {
-      console.log('GA: gtag function found');
+    if (typeof window.ga === 'function') {
+      console.log('GA: ga function found');
       trackPageView(window.location.pathname);
     } else {
-      console.log('GA: gtag function NOT found');
+      console.log('GA: ga function NOT found');
     }
   }, []);
 
@@ -68,11 +68,11 @@ function App() {
 
   const fetchConditions = async () => {
     console.log('GA: Attempting to track zip search', { zipCode });
-    if (typeof window.gtag === 'function') {
-      console.log('GA: gtag function found');
+    if (typeof window.ga === 'function') {
+      console.log('GA: ga function found');
       trackEvent('zip_search', { zip_code: zipCode });
     } else {
-      console.log('GA: gtag function NOT found');
+      console.log('GA: ga function NOT found');
     }
     let newForecast = [];
     setZipError(false);
@@ -134,8 +134,8 @@ function App() {
 
   const handleApplySettings = () => {
     console.log('GA: Attempting to track settings applied');
-    if (typeof window.gtag === 'function') {
-      console.log('GA: gtag function found');
+    if (typeof window.ga === 'function') {
+      console.log('GA: ga function found');
       trackEvent('settings_applied', {
         activity,
         settings: {
@@ -148,7 +148,7 @@ function App() {
         }
       });
     } else {
-      console.log('GA: gtag function NOT found');
+      console.log('GA: ga function NOT found');
     }
     trackEvent('settings_applied', {
       activity,
@@ -166,11 +166,11 @@ function App() {
 
   const handleActivityChange = (e) => {
     console.log('GA: Attempting to track activity change', { new_activity: e.target.value });
-    if (typeof window.gtag === 'function') {
-      console.log('GA: gtag function found');
+    if (typeof window.ga === 'function') {
+      console.log('GA: ga function found');
       trackEvent('activity_changed', { new_activity: e.target.value });
     } else {
-      console.log('GA: gtag function NOT found');
+      console.log('GA: ga function NOT found');
     }
     const selected = e.target.value;
     trackEvent('activity_changed', { new_activity: selected });

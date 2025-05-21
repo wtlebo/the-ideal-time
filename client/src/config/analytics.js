@@ -6,61 +6,40 @@ export const GA_MEASUREMENT_ID = 'G-XFNFXH80SX';
 window.addEventListener('load', () => {
   console.log('GA: Window loaded, checking GA initialization');
   
-  // Wait for GA to be ready
-  const waitForGA = () => {
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-      const maxAttempts = 10;
-      
-      const checkGA = () => {
-        attempts++;
-        if (typeof window.ga === 'function') {
-          console.log('GA: ga function found after', attempts, 'attempts');
-          resolve(true);
-        } else if (attempts < maxAttempts) {
-          console.log('GA: ga not ready, retrying...', attempts);
-          setTimeout(checkGA, 1000);
-        } else {
-          console.log('GA: ga function not found after', maxAttempts, 'attempts');
-          reject(new Error('GA initialization failed'));
-        }
-      };
-      
-      checkGA();
-    });
-  };
-
-  waitForGA()
-    .then(() => {
-      // Send initial page view
-      window.ga('send', 'pageview', {
-        page: window.location.pathname,
-        hitType: 'pageview'
-      });
-      console.log('GA: Successfully initialized');
-    })
-    .catch(error => {
-      console.error('GA: Initialization failed:', error);
-    });
-});
-
-export const trackPageView = (page) => {
+  // Initialize GA immediately
   if (typeof window.ga === 'function') {
-    console.log('GA: Attempting to track page view', { page });
+    console.log('GA: ga function found');
+    // Send initial page view
     window.ga('send', 'pageview', {
-      page: page,
+      page: window.location.pathname,
+      hitType: 'pageview'
+    });
+    console.log('GA: Successfully initialized');
+  } else {
+    console.error('GA: ga function not found');
+    // Queue the pageview
+    window.ga('send', 'pageview', {
+      page: window.location.pathname,
       hitType: 'pageview'
     });
   }
+});
+
+export const trackPageView = (page) => {
+  console.log('GA: Attempting to track page view', { page });
+  // Queue the pageview regardless of GA being ready
+  window.ga('send', 'pageview', {
+    page: page,
+    hitType: 'pageview'
+  });
 };
 
 export const trackEvent = (action, params = {}) => {
-  if (typeof window.ga === 'function') {
-    console.log('GA: Attempting to track event', { action, params });
-    window.ga('send', 'event', {
-      eventCategory: 'User Interaction',
-      eventAction: action,
-      ...params
-    });
-  }
+  console.log('GA: Attempting to track event', { action, params });
+  // Queue the event regardless of GA being ready
+  window.ga('send', 'event', {
+    eventCategory: 'User Interaction',
+    eventAction: action,
+    ...params
+  });
 };

@@ -3,6 +3,10 @@ import { Range } from 'react-range';
 import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 import { trackPageView, trackEvent } from './config/analytics';
+
+// Test log to verify app loading
+console.log('APP: Application loaded');
+
 function App() {
   const [zipCode, setZipCode] = useState(() => localStorage.getItem('zipCode') || '');
   const [activity, setActivity] = useState('paddleboarding');

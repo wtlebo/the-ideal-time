@@ -1,13 +1,20 @@
-import { GA4 } from 'react-ga4';
-
 // Initialize GA4
-GA4.initialize('G-XFNFXH80SX');
+window.dataLayer = window.dataLayer || [];
+function gtag() {
+  dataLayer.push(arguments);
+}
+window.gtag = gtag;
+
+gtag('js', new Date());
+gtag('config', 'G-XFNFXH80SX');
 
 // Export tracking functions
 export const trackPageView = (page) => {
   console.log('GA: Attempting to track page view', { page });
   try {
-    GA4.pageview(page);
+    gtag('event', 'page_view', {
+      page_path: page
+    });
   } catch (error) {
     console.error('GA: Error tracking page view:', error);
   }
@@ -16,8 +23,8 @@ export const trackPageView = (page) => {
 export const trackEvent = (action, params = {}) => {
   console.log('GA: Attempting to track event', { action, params });
   try {
-    GA4.event(action, {
-      category: 'User Interaction',
+    gtag('event', action, {
+      event_category: 'User Interaction',
       ...params
     });
   } catch (error) {

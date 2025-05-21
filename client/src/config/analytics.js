@@ -6,42 +6,19 @@ export const GA_MEASUREMENT_ID = 'G-XFNFXH80SX';
 window.addEventListener('load', () => {
   console.log('GA: Window loaded, checking GA initialization');
   
-  // Wait for GA script to load
-  const waitForGtag = () => {
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-      const maxAttempts = 10;
-      const checkGtag = () => {
-        attempts++;
-        if (typeof window.gtag === 'function') {
-          console.log('GA: gtag function found after', attempts, 'attempts');
-          resolve(true);
-        } else if (attempts < maxAttempts) {
-          console.log('GA: gtag not found, retrying...', attempts);
-          setTimeout(checkGtag, 1000);
-        } else {
-          console.log('GA: gtag not found after', maxAttempts, 'attempts');
-          reject(new Error('GA initialization failed'));
-        }
-      };
-      checkGtag();
+  // Initialize GA immediately
+  if (typeof window.gtag === 'function') {
+    console.log('GA: gtag function found');
+    // Send initial page view
+    window.gtag('config', GA_MEASUREMENT_ID, {
+      page_path: window.location.pathname,
+      send_page_view: true,
+      transport_type: 'beacon'
     });
-  };
-
-  waitForGtag()
-    .then(() => {
-      // Initialize GA with default config
-      window.gtag('js', new Date());
-      window.gtag('config', GA_MEASUREMENT_ID, {
-        send_page_view: false,
-        page_path: window.location.pathname,
-        transport_type: 'beacon'
-      });
-      console.log('GA: Successfully initialized');
-    })
-    .catch(error => {
-      console.error('GA: Initialization failed:', error);
-    });
+    console.log('GA: Successfully initialized');
+  } else {
+    console.error('GA: gtag function not found');
+  }
 });
 
 export const trackPageView = (page) => {
@@ -52,8 +29,6 @@ export const trackPageView = (page) => {
       send_page_view: true,
       transport_type: 'beacon'
     });
-  } else {
-    console.error('GA: Failed to track page view - gtag not available');
   }
 };
 
@@ -66,7 +41,5 @@ export const trackEvent = (action, params = {}) => {
       send_to: GA_MEASUREMENT_ID,
       transport_type: 'beacon'
     });
-  } else {
-    console.error('GA: Failed to track event - gtag not available');
   }
 };

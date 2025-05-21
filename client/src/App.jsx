@@ -21,9 +21,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  // Initialize GA and track initial page view
+  // Track initial page view
   useEffect(() => {
-    initializeGA();
     console.log('GA: Attempting to track page view', { page: window.location.pathname });
     trackPageView(window.location.pathname);
   }, []);

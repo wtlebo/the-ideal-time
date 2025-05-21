@@ -11,15 +11,13 @@ import ephem
 
 app = Flask(__name__)
 
-# Get frontend URL from environment variable
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://the-ideal-time-frontend.onrender.com')
-
-# Allow both development and production frontend URLs
+# Allow requests from all frontend URLs
 CORS(app, origins=[
-    "https://the-ideal-time-frontend.onrender.com",  # Development
-    "https://theidealtime.com",  # Production
-    FRONTEND_URL  # Environment variable override
-])
+    "https://the-ideal-time-frontend.onrender.com",  # Development frontend
+    "https://the-ideal-time-frontend-production.onrender.com",  # Production frontend
+    "https://theidealtime.com",  # Custom domain
+    "http://localhost:5173"  # Local development
+], supports_credentials=True)
 
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
 

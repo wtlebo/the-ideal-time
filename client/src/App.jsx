@@ -4,8 +4,7 @@ import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 import { trackPageView, trackEvent } from './utils/ga';
 
-// Test log to verify app loading
-console.log('APP: Application loaded');
+
 
 function App() {
   const [zipCode, setZipCode] = useState(() => localStorage.getItem('zipCode') || '');
@@ -23,7 +22,6 @@ function App() {
 
   // Track initial page view
   useEffect(() => {
-    console.log('GA: Attempting to track page view', { page: window.location.pathname });
     trackPageView(window.location.pathname);
   }, []);
 
@@ -62,7 +60,6 @@ function App() {
 
 
   const fetchConditions = async () => {
-    console.log('GA: Attempting to track zip search', { zipCode });
     trackEvent('zip_search', { zip_code: zipCode });
     let newForecast = [];
     setZipError(false);

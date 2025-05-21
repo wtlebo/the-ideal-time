@@ -4,27 +4,23 @@ import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 import { trackPageView, trackEvent } from './config/analytics';
 
-// Initialize Google Analytics
-if (typeof window !== 'undefined') {
-  window.dataLayer = window.dataLayer || [];
-  function gtag() {
-    dataLayer.push(arguments);
-  }
-  window.gtag = gtag;
-  gtag('js', new Date());
-  
-  // Use the same GA ID for both environments
-  const gaId = process.env.REACT_APP_GA_MEASUREMENT_ID;
-  
-  if (gaId) {
-    gtag('config', gaId);
-  }
-}
-
 function App() {
-  // Track initial page view
+  // Initialize and track page view
   useEffect(() => {
-    trackPageView('/');
+    if (typeof window !== 'undefined') {
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      window.gtag = gtag;
+      gtag('js', new Date());
+      
+      const gaId = process.env.REACT_APP_GA_MEASUREMENT_ID;
+      if (gaId) {
+        gtag('config', gaId);
+        trackPageView('/');
+      }
+    }
   }, []);
   const [zipCode, setZipCode] = useState(() => localStorage.getItem('zipCode') || '');
   const [activity, setActivity] = useState('paddleboarding');

@@ -13,10 +13,8 @@ if (typeof window !== 'undefined') {
   window.gtag = gtag;
   gtag('js', new Date());
   
-  // Use different GA IDs for development and production
-  const gaId = process.env.NODE_ENV === 'development' 
-    ? process.env.REACT_APP_GA_MEASUREMENT_ID_DEV 
-    : process.env.REACT_APP_GA_MEASUREMENT_ID;
+  // Use the same GA ID for both environments
+  const gaId = process.env.REACT_APP_GA_MEASUREMENT_ID;
   
   if (gaId) {
     gtag('config', gaId);

@@ -17,6 +17,11 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
+  // Track page view
+  useEffect(() => {
+    trackPageView(window.location.pathname);
+  }, []);
+
   const scoringConfig = activityDefaults[activity];
 
   const [tideRange, setTideRange] = useState(() => {
@@ -52,6 +57,7 @@ function App() {
 
 
   const fetchConditions = async () => {
+    trackEvent('zip_search', { zip_code: zipCode });
     let newForecast = [];
     setZipError(false);
     setLocationName('');
@@ -111,11 +117,23 @@ function App() {
   };
 
   const handleApplySettings = () => {
+    trackEvent('settings_applied', {
+      activity,
+      settings: {
+        tideRange,
+        temperatureRange,
+        windSpeedRange,
+        skyCoverRange,
+        precipChanceRange,
+        daylightRange
+      }
+    });
     setShowSettings(false);
   };
 
   const handleActivityChange = (e) => {
     const selected = e.target.value;
+    trackEvent('activity_changed', { new_activity: selected });
     setActivity(selected);
     const defaults = activityDefaults[selected];
     setTideRange(defaults.tideRange);
@@ -124,10 +142,6 @@ function App() {
     setSkyCoverRange(defaults.skyCoverRange);
     setPrecipChanceRange(defaults.precipChanceRange);
     setDaylightRange(defaults.daylightRange);
-    //const storedDaylight = localStorage.getItem(`daylightRange_${selected}`);
-    //if (storedDaylight) {
-    //  setDaylightRange(JSON.parse(storedDaylight));
-    //}
   };
 
   const handleKeyDown = (e) => {

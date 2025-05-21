@@ -6,18 +6,42 @@ export const GA_MEASUREMENT_ID = 'G-XFNFXH80SX';
 window.addEventListener('load', () => {
   console.log('GA: Window loaded, checking GA initialization');
   
-  // Initialize GA immediately
-  if (typeof window.ga === 'function') {
-    console.log('GA: ga function found');
-    // Send initial page view
-    window.ga('send', 'pageview', {
-      page: window.location.pathname,
-      hitType: 'pageview'
+  // Wait for GA to be ready
+  const waitForGA = () => {
+    return new Promise((resolve, reject) => {
+      let attempts = 0;
+      const maxAttempts = 10;
+      
+      const checkGA = () => {
+        attempts++;
+        if (typeof window.ga === 'function') {
+          console.log('GA: ga function found after', attempts, 'attempts');
+          resolve(true);
+        } else if (attempts < maxAttempts) {
+          console.log('GA: ga not ready, retrying...', attempts);
+          setTimeout(checkGA, 1000);
+        } else {
+          console.log('GA: ga function not found after', maxAttempts, 'attempts');
+          reject(new Error('GA initialization failed'));
+        }
+      };
+      
+      checkGA();
     });
-    console.log('GA: Successfully initialized');
-  } else {
-    console.error('GA: ga function not found');
-  }
+  };
+
+  waitForGA()
+    .then(() => {
+      // Send initial page view
+      window.ga('send', 'pageview', {
+        page: window.location.pathname,
+        hitType: 'pageview'
+      });
+      console.log('GA: Successfully initialized');
+    })
+    .catch(error => {
+      console.error('GA: Initialization failed:', error);
+    });
 });
 
 export const trackPageView = (page) => {

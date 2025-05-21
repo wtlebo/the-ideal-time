@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Ideal Time</title>
     <!-- Google Analytics -->
-    <script async src="https://www.google-analytics.com/analytics.js"></script>
     <script>
+      // Initialize GA before loading the script
       window.ga = window.ga || function() {
         (ga.q = ga.q || []).push(arguments);
       };
@@ -15,6 +15,8 @@
       ga('create', 'G-XFNFXH80SX', 'auto');
       ga('send', 'pageview');
     </script>
+    <!-- Load GA script after initialization -->
+    <script async src="https://www.google-analytics.com/analytics.js" onload="window.ga('send', 'pageview')"></script>
   </head>
   <body>
     <div id="root"></div>

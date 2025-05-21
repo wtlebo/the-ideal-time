@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 
 const GoogleAnalytics = () => {
+  console.log('GoogleAnalytics component rendered');
   useEffect(() => {
     // Hardcoding GA ID for testing
     const gaId = 'G-XFNFXH80SX';
@@ -31,7 +32,11 @@ const GoogleAnalytics = () => {
     }
   }, []);
 
-  return null;
+  return (
+    <div style={{ display: 'none' }}>
+      {/* This div is just to ensure the component renders */}
+    </div>
+  );
 };
 
 export default GoogleAnalytics;

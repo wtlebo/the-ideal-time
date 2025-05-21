@@ -7,24 +7,41 @@ window.gtag = window.gtag || function() {
 gtag('js', new Date());
 gtag('config', 'G-XFNFXH80SX');
 
+// Queue for events before GA is ready
+window._gaQueue = window._gaQueue || [];
+
 // Export tracking functions
 export const trackPageView = (page) => {
+  // Queue the event
+  window._gaQueue.push(['event', 'page_view', {
+    page_path: page
+  }]);
+  
+  // Process queue if GA is ready
   if (typeof window.gtag === 'function') {
-    gtag('event', 'page_view', {
-      page_path: page
+    window._gaQueue.forEach(event => {
+      gtag(...event);
     });
+    window._gaQueue = [];
   } else {
-    console.warn('GA: gtag not available yet');
+    console.log('GA: Event queued - waiting for GA to be ready');
   }
 };
 
 export const trackEvent = (action, params = {}) => {
+  // Queue the event
+  window._gaQueue.push(['event', action, {
+    event_category: 'User Interaction',
+    ...params
+  }]);
+  
+  // Process queue if GA is ready
   if (typeof window.gtag === 'function') {
-    gtag('event', action, {
-      event_category: 'User Interaction',
-      ...params
+    window._gaQueue.forEach(event => {
+      gtag(...event);
     });
+    window._gaQueue = [];
   } else {
-    console.warn('GA: gtag not available yet');
+    console.log('GA: Event queued - waiting for GA to be ready');
   }
 };

@@ -219,7 +219,6 @@ function App() {
     });
   };
 
-  useEffect(() => {
     setForecast(scoreForecast(forecast));
   }, [activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange]);
 
@@ -248,67 +247,84 @@ function App() {
     return new Intl.DateTimeFormat(undefined, options).format(new Date(isoString));
   };
 
-  const renderSlider = (label, min, max, step, values, setValues, unit) => (
-    <div className="mb-4">
-      <label className="block text-sm font-semibold text-white mb-1">{label}</label>
-      <div className="flex items-center gap-4">
-        {unit !== 'min' && <span className="text-sm w-10 text-gray-100">{min}</span>}
-        <Range
-          values={values}
-          step={step}
-          min={min}
-          max={max}
-          onChange={(values) => {
-            setValues(values);
-            if (unit === 'min') {
-              localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
-            } else {
-              localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${activity}`, JSON.stringify(values));
-                backgroundColor: '#ccc',
-                height: '4px',
-                alignSelf: 'center'
-              },
-              {
-                flex: `${(values[1] - values[0]) / (max - min)}`,
-                backgroundColor: '#0d9488',
-                height: '6px',
-                alignSelf: 'center'
-              },
-              {
-                flex: `${(max - values[1]) / (max - min)}`,
-                backgroundColor: '#ccc',
-                height: '4px',
-                alignSelf: 'center'
+  const renderSlider = (label, min, max, step, values, setValues, unit) => {
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-semibold text-white mb-1">{label}</label>
+        <div className="flex items-center gap-4">
+          {unit !== 'min' && <span className="text-sm w-10 text-gray-100">{min}</span>}
+          <Range
+            values={values}
+            step={step}
+            min={min}
+            max={max}
+            onChange={(values) => {
+              setValues(values);
+              if (unit === 'min') {
+                localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
+              } else {
+                localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${activity}`, JSON.stringify(values));
               }
-            ];
+            }}
+            renderTrack={({ props, children }) => {
+              const trackStyle = {
+                height: '6px',
+                width: '100%',
+                display: 'flex'
+              };
 
-            return (
-              <div key={key} {...restProps} style={{ ...restProps.style, ...trackStyle }}>
-                {backgroundStyles.map((style, idx) => (
-                  <div key={idx} style={style} />
-                ))}
-                {children}
-              </div>
-            );
-          }}
-          renderThumb={({ props }) => {
-            const { key, ...restProps } = props;
-            return (
-              <div
-                key={key}
-                {...restProps}
-                className="h-4 w-4 bg-white border border-gray-400 rounded-full shadow"
-              />
-            );
-          }}
-        />
-        {unit !== 'min' && <span className="text-sm w-10 text-gray-100">{max}</span>}
+              // Extract key from props if it exists
+              const { key, ...restProps } = props;
+
+              const backgroundStyles = [
+                {
+                  flex: `${(values[0] - min) / (max - min)}`,
+                  backgroundColor: '#ccc',
+                  height: '4px',
+                  alignSelf: 'center'
+                },
+                {
+                  flex: `${(values[1] - values[0]) / (max - min)}`,
+                  backgroundColor: '#0d9488',
+                  height: '6px',
+                  alignSelf: 'center'
+                },
+                {
+                  flex: `${(max - values[1]) / (max - min)}`,
+                  backgroundColor: '#ccc',
+                  height: '4px',
+                  alignSelf: 'center'
+                }
+              ];
+
+              return (
+                <div key={key} {...restProps} style={{ ...restProps.style, ...trackStyle }}>
+                  {backgroundStyles.map((style, idx) => (
+                    <div key={idx} style={style} />
+                  ))}
+                  {children}
+                </div>
+              );
+            }}
+            renderThumb={({ props }) => {
+              const { key, ...restProps } = props;
+              return (
+                <div
+                  key={key}
+                  {...restProps}
+                  className="h-4 w-4 bg-white border border-gray-400 rounded-full shadow"
+                />
+              );
+            }}
+          />
+          {unit !== 'min' && <span className="text-sm w-10 text-gray-100">{max}</span>}
+        </div>
+        <div className="text-sm mt-1 text-gray-300">
+          Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : `${values[0]} ${unit} - ${values[1]} ${unit}`}
+        </div>
       </div>
-      <div className="text-sm mt-1 text-gray-300">
-        Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : `${values[0]} ${unit} - ${values[1]} ${unit}`}
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="p-4 max-w-md mx-auto">

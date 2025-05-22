@@ -251,6 +251,9 @@ function App() {
               display: 'flex'
             };
 
+            // Extract key from props if it exists
+            const { key, ...restProps } = props;
+
             const backgroundStyles = [
               {
                 flex: `${(values[0] - min) / (max - min)}`,
@@ -273,7 +276,7 @@ function App() {
             ];
 
             return (
-              <div {...props} style={{ ...props.style, ...trackStyle }}>
+              <div key={key} {...restProps} style={{ ...restProps.style, ...trackStyle }}>
                 {backgroundStyles.map((style, idx) => (
                   <div key={idx} style={style} />
                 ))}
@@ -281,12 +284,16 @@ function App() {
               </div>
             );
           }}
-          renderThumb={({ props }) => (
-            <div
-              {...props}
-              className="h-4 w-4 bg-white border border-gray-400 rounded-full shadow"
-            />
-          )}
+          renderThumb={({ props }) => {
+            const { key, ...restProps } = props;
+            return (
+              <div
+                key={key}
+                {...restProps}
+                className="h-4 w-4 bg-white border border-gray-400 rounded-full shadow"
+              />
+            );
+          }}
         />
         {unit !== 'min' && <span className="text-sm w-10 text-gray-100">{max}</span>}
       </div>

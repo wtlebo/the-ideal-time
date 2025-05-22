@@ -1,6 +1,6 @@
 const API_CONFIG = {
   development: {
-    baseUrl: 'https://the-ideal-time-ws-dev.onrender.com'
+    baseUrl: 'https://the-ideal-time.onrender.com'
   },
   production: {
     baseUrl: 'https://the-ideal-time.onrender.com'

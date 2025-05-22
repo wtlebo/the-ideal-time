@@ -1,7 +1,6 @@
 import os
 import requests
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 from dateutil.parser import isoparse
 from datetime import datetime, timedelta
 from timezonefinder import TimezoneFinder
@@ -11,16 +10,21 @@ import ephem
 
 app = Flask(__name__)
 
-# Allow requests from all frontend URLs
-CORS(app, origins=[
-    "https://the-ideal-time-frontend.onrender.com",  # Development frontend
-    "https://the-ideal-time-frontend-production.onrender.com",  # Production frontend
-    "https://theidealtime.com",  # Custom domain
-    "http://localhost:5173"  # Local development
-], supports_credentials=True)
-
 # Get API keys from environment variables
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
+
+# Add CORS headers to all responses
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    return response
+
+# Health check endpoint for Render
+@app.route('/')
+def health_check():
+    return jsonify({"status": "healthy"})
 
 # Get API keys from environment variables
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
@@ -210,9 +214,11 @@ def get_conditions():
     )
 
     if forecast_data is None:
-        return jsonify({'error': 'Could not fetch NOAA forecast'}), 500
+        response = jsonify({'error': 'Could not fetch NOAA forecast'})
+        response.status_code = 500
+        return response
 
-    return jsonify({
+    response = jsonify({
         'zip_code': zip_code,
         'latitude': lat,
         'longitude': lon,

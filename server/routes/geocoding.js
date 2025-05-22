@@ -24,11 +24,12 @@ router.get('/', async (req, res) => {
     
     const { results } = response.data;
     if (results.length > 0) {
-      const { city, town, village, state_code } = results[0].components;
-      const cityName = city || town || village || '';
+      const components = results[0].components;
+      const cityName = components.city || components.town || components.village || components.suburb || '';
+      const stateName = components.state || components.county || '';
       res.json({
         city: cityName,
-        state: state_code
+        state: stateName
       });
     } else {
       res.status(404).json({ error: 'Location not found' });

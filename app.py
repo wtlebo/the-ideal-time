@@ -24,14 +24,14 @@ def add_cors_headers(response):
 # Health check endpoint for Render
 @app.route('/')
 def health_check():
-    return jsonify({"status": "healthy"})
+    response = jsonify({"status": "healthy"})
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    return response
 
 # Get API keys from environment variables
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
-
-# Health check endpoint for Render
-@app.route('/')
-def health_check():
     return jsonify({"status": "healthy"})
 
 def zip_to_latlon(zip_code):

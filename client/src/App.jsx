@@ -4,7 +4,7 @@ import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 import { trackPageView, trackEvent } from './utils/ga';
 import { getApiBaseUrl } from './config/api';
-import '../styles/custom.css';
+import './styles/custom.css';
 
 
 

@@ -413,13 +413,13 @@ function App() {
           {forecast.map((hour, idx) => (
             <div
               key={idx}
-              className={`flex items-center justify-between px-4 py-2 rounded cursor-pointer ${getScoreColor(hour.score)} ${selectedHour === idx ? 'border-4 border-white' : ''}`}
+              className={`hourly-scoring-block ${getScoreColor(hour.score)} ${selectedHour === idx ? 'selected' : ''}`}
               onClick={() => setSelectedHour(selectedHour === idx ? null : idx)}
             >
-              <div className="text-sm font-mono text-white">
+              <div className="time">
                 {formatDateTime(hour.time)}
               </div>
-              <div className="text-white font-bold">&nbsp;</div>
+              <div className="score">{hour.score}</div>
             </div>
           ))}
         </div>

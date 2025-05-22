@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
-router.get('/geocode', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { zip } = req.query;
     const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {

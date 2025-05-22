@@ -5,16 +5,16 @@ export const activityDefaults = {
     tideRange: [5, 15],
     temperatureMin: 0,
     temperatureMax: 120,
-    temperatureRange: [50, 110],
+    temperatureRange: [60, 110],
     windSpeedMin: 0,
     windSpeedMax: 40,
     windSpeedRange: [0, 8],
     skyCoverMin: 0,
     skyCoverMax: 100,
-    skyCoverRange: [0, 75],
+    skyCoverRange: [0, 100],
     precipChanceMin: 0,
     precipChanceMax: 100,
-    precipChanceRange: [0, 25],
+    precipChanceRange: [0, 40],
     daylightMin: 0, // 12:00 AM
     daylightMax: 1439, // 11:59 PM
     daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
@@ -65,7 +65,7 @@ export const activityDefaults = {
   motorboating: {
     tideMin: -2,
     tideMax: 15,
-    tideRange: [5, 15],
+    tideRange: [6, 15],
     temperatureMin: 0,
     temperatureMax: 120,
     temperatureRange: [60, 100],

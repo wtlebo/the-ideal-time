@@ -1,6 +1,7 @@
 import os
 import requests
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from dateutil.parser import isoparse
 from datetime import datetime, timedelta
 from timezonefinder import TimezoneFinder
@@ -10,28 +11,21 @@ import ephem
 
 app = Flask(__name__)
 
+# Configure CORS with specific origins
+CORS(app, origins=[
+    "https://the-ideal-time-frontend.onrender.com",
+    "https://the-ideal-time-frontend-production.onrender.com",
+    "https://theidealtime.com",
+    "http://localhost:5173"
+], supports_credentials=True)
+
 # Get API keys from environment variables
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
-
-# Add CORS headers to all responses
-@app.after_request
-def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
-    return response
 
 # Health check endpoint for Render
 @app.route('/')
 def health_check():
-    response = jsonify({"status": "healthy"})
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
-    return response
-
-# Get API keys from environment variables
-OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
+    return jsonify({"status": "healthy"})
 
 def zip_to_latlon(zip_code):
     url = f'https://api.opencagedata.com/geocode/v1/json?q={zip_code}&key={OPENCAGE_API_KEY}&countrycode=us'

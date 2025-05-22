@@ -32,7 +32,6 @@ def health_check():
 
 # Get API keys from environment variables
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
-    return jsonify({"status": "healthy"})
 
 def zip_to_latlon(zip_code):
     url = f'https://api.opencagedata.com/geocode/v1/json?q={zip_code}&key={OPENCAGE_API_KEY}&countrycode=us'

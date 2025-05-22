@@ -187,7 +187,7 @@ def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, tz_name="Amer
 
     return clean_data
 
-@app.route('/conditions')
+@app.route('/conditions', methods=['GET'])
 def get_conditions():
     zip_code = request.args.get('zip')
     lat, lon = zip_to_latlon(zip_code)
@@ -204,16 +204,46 @@ def get_conditions():
     forecast_data = get_noaa_hourly_forecast(
         lat, lon, tide_data, water_temp,
         tz_name=tz_name
-    )
+    try:
+        zip_code = request.args.get('zip')
+        lat, lon = zip_to_latlon(zip_code)
+        if lat is None:
+            return jsonify({'error': 'Invalid ZIP code'}), 400
 
-    if forecast_data is None:
-        response = jsonify({'error': 'Could not fetch NOAA forecast'})
+        tf = TimezoneFinder()
+        tz_name = tf.timezone_at(lat=lat, lng=lon) or 'America/New_York'
+
+        station_id, station_name, distance_miles = find_closest_tide_station(lat, lon)
+        tide_data = get_tide_predictions(station_id, lat, lon)
+        water_temp = get_water_temperature(station_id)
+
+        forecast_data = get_noaa_hourly_forecast(
+            lat, lon, tide_data, water_temp,
+            tz_name=tz_name
+        )
+
+        if forecast_data is None:
+            response = jsonify({'error': 'Could not fetch NOAA forecast'})
+            response.status_code = 500
+            return response
+
+        response = jsonify({
+            'zip_code': zip_code,
+            'latitude': lat,
+            'longitude': lon,
+            'station_id': station_id,
+            'station_name': station_name,
+            'station_distance_miles': round(distance_miles, 2),
+            'activity': request.args.get('activity', 'paddleboarding'),
+            'forecast': forecast_data,
+            'timezone': tz_name
+        })
+        response.status_code = 200
+        return response
+    except Exception as e:
+        response = jsonify({'error': str(e)})
         response.status_code = 500
         return response
-
-    response = jsonify({
-        'zip_code': zip_code,
-        'latitude': lat,
         'longitude': lon,
         'station_id': station_id,
         'station_name': station_name,

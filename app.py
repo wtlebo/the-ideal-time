@@ -22,16 +22,24 @@ CORS(app, origins=[
 # Get API keys from environment variables
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
 
+if not OPENCAGE_API_KEY:
+    print("Warning: OPENCAGE_API_KEY not set in environment variables")
+
 # Health check endpoint for Render
 @app.route('/')
 def health_check():
     return jsonify({"status": "healthy"})
 
 def zip_to_latlon(zip_code):
+    if not OPENCAGE_API_KEY:
+        return None, None
+
     url = f'https://api.opencagedata.com/geocode/v1/json?q={zip_code}&key={OPENCAGE_API_KEY}&countrycode=us'
-    response = requests.get(url)
-    data = response.json()
-    if data['results']:
+    try:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        if data.get('results'):
         lat = data['results'][0]['geometry']['lat']
         lon = data['results'][0]['geometry']['lng']
         return lat, lon

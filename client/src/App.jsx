@@ -196,13 +196,13 @@ function App() {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 6) return 'bg-green-300';
-    if (score === 5) return 'bg-lime-300';
-    if (score === 4) return 'bg-yellow-400';
-    if (score === 3) return 'bg-amber-500';
-    if (score === 2) return 'bg-orange-500';
-    if (score === 1) return 'bg-red-500';
-    return 'bg-red-500';
+    if (score >= 6) return 'bg-green-400';
+    if (score === 5) return 'bg-yellow-400';
+    if (score === 4) return 'bg-amber-400';
+    if (score === 3) return 'bg-orange-400';
+    if (score === 2) return 'bg-red-400';
+    if (score === 1) return 'bg-red-400';
+    return 'bg-red-400';
   };
 
   const scoreForecast = (rawForecast) => {

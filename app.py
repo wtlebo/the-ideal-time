@@ -12,22 +12,12 @@ import ephem
 app = Flask(__name__)
 
 # Allow requests from all frontend URLs
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    return response
-
-# Explicitly enable CORS for specific routes
-def enable_cors(func):
-    def wrapper(*args, **kwargs):
-        response = func(*args, **kwargs)
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-        return response
-    return wrapper
+CORS(app, origins=[
+    "https://the-ideal-time-frontend.onrender.com",  # Development frontend
+    "https://the-ideal-time-frontend-production.onrender.com",  # Production frontend
+    "https://theidealtime.com",  # Custom domain
+    "http://localhost:5173"  # Local development
+], supports_credentials=True)
 
 # Get API keys from environment variables
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
@@ -200,8 +190,7 @@ def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, tz_name="Amer
 
     return clean_data
 
-@app.route('/conditions', methods=['GET'])
-@enable_cors
+@app.route('/conditions')
 def get_conditions():
     zip_code = request.args.get('zip')
     lat, lon = zip_to_latlon(zip_code)

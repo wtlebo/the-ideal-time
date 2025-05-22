@@ -328,7 +328,7 @@ function App() {
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
+    <div className="px-4 pb-4 max-w-md mx-auto">
       <div className="flex justify-center mb-4">
         <img src="/logo.png" alt="The Ideal Time" className="w-full max-h-96 object-contain" />
       </div>

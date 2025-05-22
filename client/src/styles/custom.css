@@ -50,11 +50,11 @@ body {
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   line-height: 1.2;
-  padding: 0.375rem;
+  padding: 0.25rem;
   border-radius: 0.375rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  height: 2.5rem;
+  height: 2rem;
 }
 
 .hourly-scoring-block:hover {

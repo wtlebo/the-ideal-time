@@ -32,7 +32,7 @@ def health_check():
 
 def zip_to_latlon(zip_code):
     if not OPENCAGE_API_KEY:
-        return None, None
+        return None, None, None, None
 
     url = f'https://api.opencagedata.com/geocode/v1/json?q={zip_code}&key={OPENCAGE_API_KEY}&countrycode=us'
     try:
@@ -40,14 +40,24 @@ def zip_to_latlon(zip_code):
         response.raise_for_status()
         data = response.json()
         if not data.get('results'):
-            return None, None
+            return None, None, None, None
         
-        lat = data['results'][0]['geometry']['lat']
-        lon = data['results'][0]['geometry']['lng']
-        return lat, lon
+        result = data['results'][0]
+        lat = result['geometry']['lat']
+        lon = result['geometry']['lng']
+        city = None
+        state = None
+        
+        # Extract city and state from components
+        components = result.get('components', {})
+        if components:
+            city = components.get('city') or components.get('town') or components.get('village')
+            state = components.get('state')
+        
+        return lat, lon, city, state
     except Exception as e:
         print(f"Error fetching geocoding data: {str(e)}")
-        return None, None
+        return None, None, None, None
         lat = data['results'][0]['geometry']['lat']
         lon = data['results'][0]['geometry']['lng']
         return lat, lon
@@ -206,7 +216,7 @@ def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, tz_name="Amer
 @app.route('/conditions')
 def get_conditions():
     zip_code = request.args.get('zip')
-    lat, lon = zip_to_latlon(zip_code)
+    lat, lon, city, state = zip_to_latlon(zip_code)
     if lat is None:
         return jsonify({'error': 'Invalid ZIP code'}), 400
 
@@ -229,6 +239,8 @@ def get_conditions():
         'zip_code': zip_code,
         'latitude': lat,
         'longitude': lon,
+        'city': city,
+        'state': state,
         'station_id': station_id,
         'station_name': station_name,
         'station_distance_miles': round(distance_miles, 2),

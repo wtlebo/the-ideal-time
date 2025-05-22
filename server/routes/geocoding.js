@@ -5,6 +5,13 @@ const axios = require('axios');
 router.get('/', async (req, res) => {
   try {
     const { zip } = req.query;
+    console.log('Geocoding request received for zip:', zip);
+    
+    if (!process.env.OPENCAGE_API_KEY) {
+      console.error('OpenCage API key is not set');
+      return res.status(500).json({ error: 'API key not configured' });
+    }
+
     const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
       params: {
         q: zip,

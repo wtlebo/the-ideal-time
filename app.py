@@ -39,7 +39,15 @@ def zip_to_latlon(zip_code):
         response = requests.get(url, timeout=5)
         response.raise_for_status()
         data = response.json()
-        if data.get('results'):
+        if not data.get('results'):
+            return None, None
+        
+        lat = data['results'][0]['geometry']['lat']
+        lon = data['results'][0]['geometry']['lng']
+        return lat, lon
+    except Exception as e:
+        print(f"Error fetching geocoding data: {str(e)}")
+        return None, None
         lat = data['results'][0]['geometry']['lat']
         lon = data['results'][0]['geometry']['lng']
         return lat, lon

@@ -11,12 +11,12 @@ import ephem
 
 app = Flask(__name__)
 
-# Configure CORS with specific origins
+# Allow requests from all frontend URLs
 CORS(app, origins=[
-    "https://the-ideal-time-frontend.onrender.com",
-    "https://the-ideal-time-frontend-production.onrender.com",
-    "https://theidealtime.com",
-    "http://localhost:5173"
+    "https://the-ideal-time-frontend.onrender.com",  # Development frontend
+    "https://the-ideal-time-frontend-production.onrender.com",  # Production frontend
+    "https://theidealtime.com",  # Custom domain
+    "http://localhost:5173"  # Local development
 ], supports_credentials=True)
 
 # Get API keys from environment variables
@@ -187,44 +187,36 @@ def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, tz_name="Amer
 
     return clean_data
 
-@app.route('/conditions', methods=['GET'])
+@app.route('/conditions')
 def get_conditions():
-    try:
-        zip_code = request.args.get('zip')
-        if not zip_code:
-            return jsonify({'error': 'ZIP code is required'}), 400
+    zip_code = request.args.get('zip')
+    lat, lon = zip_to_latlon(zip_code)
+    if lat is None:
+        return jsonify({'error': 'Invalid ZIP code'}), 400
 
-        lat, lon = zip_to_latlon(zip_code)
-        if lat is None:
-            return jsonify({'error': 'Invalid ZIP code'}), 400
+    tf = TimezoneFinder()
+    tz_name = tf.timezone_at(lat=lat, lng=lon) or 'America/New_York'
 
-        tf = TimezoneFinder()
-        tz_name = tf.timezone_at(lat=lat, lng=lon) or 'America/New_York'
+    station_id, station_name, distance_miles = find_closest_tide_station(lat, lon)
+    tide_data = get_tide_predictions(station_id, lat, lon)
+    water_temp = get_water_temperature(station_id)
 
-        station_id, station_name, distance_miles = find_closest_tide_station(lat, lon)
-        tide_data = get_tide_predictions(station_id, lat, lon)
-        water_temp = get_water_temperature(station_id)
+    forecast_data = get_noaa_hourly_forecast(
+        lat, lon, tide_data, water_temp,
+        tz_name=tz_name
+    )
 
-        forecast_data = get_noaa_hourly_forecast(
-            lat, lon, tide_data, water_temp,
-            tz_name=tz_name
-        )
+    if forecast_data is None:
+        return jsonify({'error': 'Could not fetch NOAA forecast'}), 500
 
-        if forecast_data is None:
-            return jsonify({'error': 'Could not fetch NOAA forecast'}), 500
-
-        response = {
-            'zip_code': zip_code,
-            'latitude': lat,
-            'longitude': lon,
-            'station_id': station_id,
-            'station_name': station_name,
-            'station_distance_miles': round(distance_miles, 2),
-            'activity': request.args.get('activity', 'paddleboarding'),
-            'forecast': forecast_data,
-            'timezone': tz_name
-        }
-        return jsonify(response), 200
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    return jsonify({
+        'zip_code': zip_code,
+        'latitude': lat,
+        'longitude': lon,
+        'station_id': station_id,
+        'station_name': station_name,
+        'station_distance_miles': round(distance_miles, 2),
+        'activity': request.args.get('activity', 'paddleboarding'),
+        'forecast': forecast_data,
+        'timezone': tz_name
+    })

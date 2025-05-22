@@ -74,48 +74,40 @@ function App() {
       const sunrise = 360; // 6 AM
       const sunset = 1080; // 6 PM
       
-      // Fetch geocoding data
-      const geoRes = await fetch(`${getApiBaseUrl()}/geocode?zip=${zipCode}`);
-      const geoData = await geoRes.json();
+      // Fetch conditions data directly
+      const params = new URLSearchParams({
+        zip: zipCode,
+        activity
+      });
+      const res = await fetch(`${getApiBaseUrl()}/conditions?${params}`);
+      const data = await res.json();
       
-      // Check for geocoding error
-      if (geoData.error) {
-        console.error('Geocoding error:', geoData.error);
-        setZipError(true);
+      // Check for conditions error
+      if (data.error) {
+        console.error('Conditions error:', data.error);
+        setConditionsError(true);
         return;
       }
       
       // Set location name if we got valid city/state
-      if (geoData.city && geoData.state) {
-        setLocationName(`${geoData.city}, ${geoData.state}`);
+      if (data.city && data.state) {
+        setLocationName(`${data.city}, ${data.state}`);
       } else {
-        console.warn('No valid city/state found:', geoData);
-        setZipError(true);
+        console.warn('No valid city/state found:', data);
+        setConditionsError(true);
         return;
       }
-
-      // Continue with conditions fetch...
-      try {
-        const params = new URLSearchParams({
-          zip: zipCode,
-          activity
-        });
-        const response = await fetch(`${getApiBaseUrl()}/conditions?${params.toString()}`);
-        const data = await response.json();
-        newForecast = data.forecast || [];
-        setStationId(data.station_id || '');
-        setStationName(data.station_name || '');
-        setStationDistance(data.station_distance_miles || null);
-        setTimeZone(data.timezone || 'America/New_York');
-        
-        if (newForecast.length > 0) {
-          setForecast(scoreForecast(newForecast));
-        } else {
-          setForecast([]);
-          setConditionsError(true);
-        }
-      } catch (error) {
-        console.error('Conditions fetch error:', error);
+      // Set station and timezone info
+      setStationId(data.station_id || '');
+      setStationName(data.station_name || '');
+      setStationDistance(data.station_distance_miles || null);
+      setTimeZone(data.timezone || 'America/New_York');
+      
+      // Process forecast data
+      newForecast = data.forecast || [];
+      if (newForecast.length > 0) {
+        setForecast(scoreForecast(newForecast));
+      } else {
         setForecast([]);
         setConditionsError(true);
       }

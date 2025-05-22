@@ -219,8 +219,12 @@ function App() {
     });
   };
 
-    setForecast(scoreForecast(forecast));
-  }, [activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange]);
+  useEffect(() => {
+    const updateForecast = () => {
+      setForecast(scoreForecast(forecast));
+    };
+    updateForecast();
+  }, [activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange, forecast]);
 
   const formatDateTime = (isoString, timeZone = 'America/New_York') => {
     const options = {

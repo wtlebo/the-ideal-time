@@ -68,10 +68,6 @@ body {
 .hourly-scoring-block .time {
   font-weight: 600;
   font-size: 0.875rem;
-}
-
-.hourly-scoring-block .score {
-  font-weight: 700;
-  font-size: 1rem;
-  margin-left: 0.5rem;
+  text-align: center;
+  width: 100%;
 }

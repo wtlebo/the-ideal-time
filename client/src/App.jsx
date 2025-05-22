@@ -419,7 +419,6 @@ function App() {
               <div className="time">
                 {formatDateTime(hour.time)}
               </div>
-              <div className="score">{hour.score}</div>
             </div>
           ))}
         </div>

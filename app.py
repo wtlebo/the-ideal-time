@@ -213,7 +213,7 @@ def get_conditions():
         if forecast_data is None:
             return jsonify({'error': 'Could not fetch NOAA forecast'}), 500
 
-        return jsonify({
+        response = {
             'zip_code': zip_code,
             'latitude': lat,
             'longitude': lon,
@@ -223,9 +223,8 @@ def get_conditions():
             'activity': request.args.get('activity', 'paddleboarding'),
             'forecast': forecast_data,
             'timezone': tz_name
-        }), 200
+        }
+        return jsonify(response), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-        'timezone': tz_name
-    })

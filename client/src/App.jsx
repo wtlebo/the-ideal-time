@@ -4,6 +4,7 @@ import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 import { trackPageView, trackEvent } from './utils/ga';
 import { getApiBaseUrl } from './config/api';
+import '../styles/custom.css';
 
 
 
@@ -425,21 +426,21 @@ function App() {
       )}
 
       {selectedHour !== null && forecast[selectedHour] && (
-        <div className="mt-6 p-4 border rounded bg-gray-800 text-white">
+        <div className="mt-6 p-4 border rounded bg-gray-800 text-white scoring-block">
           <h2 className="text-xl font-bold mb-2">
             Details for {formatDetailDateTime(forecast[selectedHour].time)}
           </h2>
           <ul className="space-y-1">
-            <li>Temp: {forecast[selectedHour].temperature} °F</li>
-            <li>Wind: {forecast[selectedHour].windSpeed} mph from the {forecast[selectedHour].windDirection}</li>
-            <li>Precipitation: {forecast[selectedHour].precipChance}%</li>
-            <li>Sky Cover: {forecast[selectedHour].skyCover}%</li>
-            <li>Tide Height: {forecast[selectedHour].tideHeight ?? 'n/a'} ft</li>
+            <li className="font-bold">Temp: {forecast[selectedHour].temperature} °F</li>
+            <li className="font-bold">Wind: {forecast[selectedHour].windSpeed} mph from the {forecast[selectedHour].windDirection}</li>
+            <li className="font-bold">Precipitation: {forecast[selectedHour].precipChance}%</li>
+            <li className="font-bold">Sky Cover: {forecast[selectedHour].skyCover}%</li>
+            <li className="font-bold">Tide Height: {forecast[selectedHour].tideHeight ?? 'n/a'} ft</li>
             {forecast[selectedHour].waterTemp !== 'n/a' && forecast[selectedHour].waterTemp !== null && (
-              <li>Water Temp: {forecast[selectedHour].waterTemp} °F</li>
+              <li className="font-bold">Water Temp: {forecast[selectedHour].waterTemp} °F</li>
             )}
-            <li>Daylight: {forecast[selectedHour].isDaylight ? 'Yes' : 'No'}</li>
-            <li>Summary: {forecast[selectedHour].summary}</li>
+            <li className="font-bold">Daylight: {forecast[selectedHour].isDaylight ? 'Yes' : 'No'}</li>
+            <li className="font-bold">Summary: {forecast[selectedHour].summary}</li>
           </ul>
           <p className="mt-4 text-sm text-gray-400">
             Source: <a href="https://www.weather.gov/documentation/services-web-api" className="underline text-blue-300" target="_blank" rel="noopener noreferrer">NOAA Weather API</a> and <a href={`https://tidesandcurrents.noaa.gov/stationhome.html?id=${stationId}`} className="underline text-blue-300" target="_blank" rel="noopener noreferrer">NOAA Tides & Currents for Station {stationId}</a>

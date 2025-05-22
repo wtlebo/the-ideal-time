@@ -16,6 +16,7 @@ function App() {
   const [stationDistance, setStationDistance] = useState(null);
   const [locationName, setLocationName] = useState('');
   const [zipError, setZipError] = useState(false);
+  const [conditionsError, setConditionsError] = useState(false);
   const [timeZone, setTimeZone] = useState('America/New_York');
   const [selectedHour, setSelectedHour] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -111,12 +112,12 @@ function App() {
           setForecast(scoreForecast(newForecast));
         } else {
           setForecast([]);
-          setZipError(true);
+          setConditionsError(true);
         }
       } catch (error) {
         console.error('Conditions fetch error:', error);
         setForecast([]);
-        setZipError(true);
+        setConditionsError(true);
       }
     } catch (error) {
       console.error('Geocoding fetch error:', error);
@@ -374,7 +375,9 @@ function App() {
       )}
 
       {zipError && (
-        <div className="text-red-500 text-center font-semibold mb-4">Please enter a valid ZIP code</div>
+        <div className="text-red-500 text-sm mb-2">
+          {zipError ? 'Please enter a valid ZIP code' : 'Could not fetch conditions data'}
+        </div>
       )}
 
 

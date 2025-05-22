@@ -100,7 +100,7 @@ export const activityDefaults = {
     windSpeedRange: [0, 15],
     skyCoverMin: 0,
     skyCoverMax: 100,
-    skyCoverRange: [0, 100],
+    skyCoverRange: [0, 90],
     precipChanceMin: 0,
     precipChanceMax: 100,
     precipChanceRange: [0, 30],

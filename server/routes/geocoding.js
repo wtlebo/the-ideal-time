@@ -25,8 +25,8 @@ router.get('/', async (req, res) => {
     const { results } = response.data;
     if (results.length > 0) {
       const components = results[0].components;
-      const cityName = components.city || components.town || components.village || components.suburb || '';
-      const stateName = components.state || components.county || '';
+      const cityName = components.city || components.suburb || '';
+      const stateName = components.state || '';
       res.json({
         city: cityName,
         state: stateName

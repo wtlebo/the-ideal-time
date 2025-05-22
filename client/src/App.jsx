@@ -197,10 +197,10 @@ function App() {
 
   const getScoreColor = (score) => {
     if (score >= 6) return 'bg-green-400';
-    if (score === 5) return 'bg-yellow-400';
-    if (score === 4) return 'bg-amber-400';
-    if (score === 3) return 'bg-orange-400';
-    if (score === 2) return 'bg-red-400';
+    if (score === 5) return 'bg-lime-200';
+    if (score === 4) return 'bg-yellow-300';
+    if (score === 3) return 'bg-amber-200';
+    if (score === 2) return 'bg-orange-400';
     if (score === 1) return 'bg-red-400';
     return 'bg-red-400';
   };
@@ -352,9 +352,9 @@ function App() {
           value={activity}
           onChange={handleActivityChange}
         >
-          {Object.keys(activityDefaults).map((key) => (
+          {Object.entries(activityDefaults).map(([key, config]) => (
             <option key={key} value={key}>
-              {key.charAt(0).toUpperCase() + key.slice(1)}
+              {config.displayName}
             </option>
           ))}
         </select>
@@ -387,7 +387,7 @@ function App() {
       {showSettings && (
         <div className="mb-6 border rounded p-4 bg-gray-800">
           <h2 className="text-lg font-semibold text-white mb-4">
-            Ideal conditions for {activity.charAt(0).toUpperCase() + activity.slice(1)}
+            Ideal conditions for {activityDefaults[activity].displayName}
           </h2>
           {renderSlider('Time of Day', scoringConfig.daylightMin, scoringConfig.daylightMax, 15, daylightRange, setDaylightRange, 'min')}
           {renderSlider('Temperature (°F)', scoringConfig.temperatureMin, scoringConfig.temperatureMax, 1, temperatureRange, setTemperatureRange, '°F')}

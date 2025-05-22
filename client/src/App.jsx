@@ -264,21 +264,6 @@ function App() {
               localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
             } else {
               localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${activity}`, JSON.stringify(values));
-            }
-          }}
-          renderTrack={({ props, children }) => {
-            const trackStyle = {
-              height: '6px',
-              width: '100%',
-              display: 'flex'
-            };
-
-            // Extract key from props if it exists
-            const { key, ...restProps } = props;
-
-            const backgroundStyles = [
-              {
-                flex: `${(values[0] - min) / (max - min)}`,
                 backgroundColor: '#ccc',
                 height: '4px',
                 alignSelf: 'center'
@@ -411,7 +396,7 @@ function App() {
       )}
 
       {!showSettings && !zipError && (
-        <div className="h-[500px] overflow-y-auto space-y-1">
+        <div className="h-[375px] overflow-y-auto space-y-1">
           {loading && <p>Loading...</p>}
           {forecast.map((hour, idx) => (
             <div

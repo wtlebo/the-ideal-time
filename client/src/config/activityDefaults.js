@@ -42,7 +42,7 @@ export const activityDefaults = {
     daylightMax: 1439, // 11:59 PM
     daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
     requireDaylight: false
-  }
+  },
   hiking: {
     displayName: 'Hiking',
     tideMin: -2,

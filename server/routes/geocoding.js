@@ -20,6 +20,8 @@ router.get('/', async (req, res) => {
       }
     });
 
+    console.log('OpenCage API response:', response.data);
+    
     const { results } = response.data;
     if (results.length > 0) {
       const { city, town, village, state_code } = results[0].components;

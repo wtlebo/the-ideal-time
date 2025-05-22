@@ -11,11 +11,11 @@ import ephem
 
 app = Flask(__name__)
 
-# Allow requests from all frontend URLs
+# Allow requests from specific frontend URLs
 CORS(app, origins=[
     "https://the-ideal-time-frontend.onrender.com",  # Development frontend
     "https://the-ideal-time-frontend-production.onrender.com",  # Production frontend
-    "https://theidealtime.com",  # Custom domain
+    "https://www.theidealtime.com",  # Custom domain
     "http://localhost:5173"  # Local development
 ], supports_credentials=True)
 

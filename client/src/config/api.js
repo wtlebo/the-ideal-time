@@ -3,7 +3,7 @@ const API_CONFIG = {
     baseUrl: 'https://the-ideal-time.onrender.com'
   },
   production: {
-    baseUrl: 'https://the-ideal-time.onrender.com'
+    baseUrl: 'https://the-ideal-time-ws-production.onrender.com'
   }
 };
 

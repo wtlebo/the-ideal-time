@@ -19,7 +19,13 @@ CORS(app, origins=[
     "http://localhost:5173"  # Local development
 ], supports_credentials=True)
 
+# Get API keys from environment variables
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
+
+# Health check endpoint for Render
+@app.route('/')
+def health_check():
+    return jsonify({"status": "healthy"})
 
 def zip_to_latlon(zip_code):
     url = f'https://api.opencagedata.com/geocode/v1/json?q={zip_code}&key={OPENCAGE_API_KEY}&countrycode=us'
@@ -181,7 +187,7 @@ def get_noaa_hourly_forecast(lat, lon, tide_data, water_temp=None, tz_name="Amer
 
     return clean_data
 
-@app.route('/conditions')
+@app.route('/conditions', methods=['GET'])
 def get_conditions():
     zip_code = request.args.get('zip')
     lat, lon = zip_to_latlon(zip_code)

@@ -40,7 +40,7 @@ export const activityDefaults = {
     precipChanceRange: [0, 5],
     daylightMin: 0, // 12:00 AM
     daylightMax: 1439, // 11:59 PM
-    daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
+    daylightRange: [1020, 1200], // 5:00 PM to 8:00 PM
     requireDaylight: false
   },
   hiking: {
@@ -62,7 +62,7 @@ export const activityDefaults = {
     precipChanceRange: [0, 15],
     daylightMin: 0, // 12:00 AM
     daylightMax: 1439, // 11:59 PM
-    daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
+    daylightRange: [480, 1080], // 8:00 AM to 6:00 PM
     requireDaylight: false
   },
   kayaking: {
@@ -216,7 +216,7 @@ export const activityDefaults = {
     precipChanceRange: [0, 10],
     daylightMin: 0, // 12:00 AM
     daylightMax: 1439, // 11:59 PM
-    daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
+    daylightRange: [600, 1020], // 10:00 AM to 5:00 PM
     requireDaylight: false
   },
   surfing: {

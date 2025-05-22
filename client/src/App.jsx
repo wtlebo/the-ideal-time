@@ -86,6 +86,7 @@ function App() {
       if (data.error) {
         console.error('Conditions error:', data.error);
         setConditionsError(true);
+        setLoading(false);
         return;
       }
       
@@ -95,6 +96,7 @@ function App() {
       } else {
         console.warn('No valid city/state found:', data);
         setConditionsError(true);
+        setLoading(false);
         return;
       }
       // Set station and timezone info
@@ -107,14 +109,17 @@ function App() {
       newForecast = data.forecast || [];
       if (newForecast.length > 0) {
         setForecast(scoreForecast(newForecast));
+        setLoading(false);
       } else {
         setForecast([]);
         setConditionsError(true);
+        setLoading(false);
       }
     } catch (error) {
       console.error('Geocoding fetch error:', error);
       setForecast([]);
       setZipError(true);
+      setLoading(false);
     }
   };
 

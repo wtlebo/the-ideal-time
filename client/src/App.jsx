@@ -3,6 +3,7 @@ import { Range } from 'react-range';
 import { GearIcon } from '@radix-ui/react-icons';
 import { activityDefaults } from './config/activityDefaults';
 import { trackPageView, trackEvent } from './utils/ga';
+import { getApiBaseUrl } from './config/api';
 
 
 
@@ -70,7 +71,7 @@ function App() {
     const sunrise = 360; // 6 AM
     const sunset = 1080; // 6 PM
     try {
-      const geoRes = await fetch(`https://the-ideal-time.onrender.com/geocode?zip=${zipCode}`);
+      const geoRes = await fetch(`${getApiBaseUrl()}/geocode?zip=${zipCode}`);
       const geoData = await geoRes.json();
       if (geoData.city && geoData.state) {
         setLocationName(`${geoData.city}, ${geoData.state}`);
@@ -84,7 +85,7 @@ function App() {
         zip: zipCode,
         activity
       });
-      const response = await fetch(`https://the-ideal-time.onrender.com/conditions?${params.toString()}`);
+      const response = await fetch(`${getApiBaseUrl()}/conditions?${params.toString()}`);
       const data = await response.json();
       newForecast = data.forecast || [];
       setStationId(data.station_id || '');

@@ -67,41 +67,61 @@ function App() {
     setLocationName('');
     if (!zipCode) return;
     setLoading(true);
-    // Default sunrise/sunset fallback
-    const sunrise = 360; // 6 AM
-    const sunset = 1080; // 6 PM
+    
     try {
+      // Default sunrise/sunset fallback
+      const sunrise = 360; // 6 AM
+      const sunset = 1080; // 6 PM
+      
+      // Fetch geocoding data
       const geoRes = await fetch(`${getApiBaseUrl()}/geocode?zip=${zipCode}`);
       const geoData = await geoRes.json();
+      
+      // Check for geocoding error
+      if (geoData.error) {
+        console.error('Geocoding error:', geoData.error);
+        setZipError(true);
+        return;
+      }
+      
+      // Set location name if we got valid city/state
       if (geoData.city && geoData.state) {
         setLocationName(`${geoData.city}, ${geoData.state}`);
-      }
-    } catch (e) {
-      console.warn('Could not fetch city/state:', e);
-    }
-
-    try {
-      const params = new URLSearchParams({
-        zip: zipCode,
-        activity
-      });
-      const response = await fetch(`${getApiBaseUrl()}/conditions?${params.toString()}`);
-      const data = await response.json();
-      newForecast = data.forecast || [];
-      setStationId(data.station_id || '');
-      setStationName(data.station_name || '');
-      setStationDistance(data.station_distance_miles || null);
-      setTimeZone(data.timezone || 'America/New_York');
-      if (newForecast.length > 0) {
-        setForecast(scoreForecast(newForecast));
       } else {
+        console.warn('No valid city/state found:', geoData);
+        setZipError(true);
+        return;
+      }
+
+      // Continue with conditions fetch...
+      try {
+        const params = new URLSearchParams({
+          zip: zipCode,
+          activity
+        });
+        const response = await fetch(`${getApiBaseUrl()}/conditions?${params.toString()}`);
+        const data = await response.json();
+        newForecast = data.forecast || [];
+        setStationId(data.station_id || '');
+        setStationName(data.station_name || '');
+        setStationDistance(data.station_distance_miles || null);
+        setTimeZone(data.timezone || 'America/New_York');
+        
+        if (newForecast.length > 0) {
+          setForecast(scoreForecast(newForecast));
+        } else {
+          setForecast([]);
+          setZipError(true);
+        }
+      } catch (error) {
+        console.error('Conditions fetch error:', error);
         setForecast([]);
         setZipError(true);
       }
     } catch (error) {
-      console.error('Error fetching conditions:', error);
-    } finally {
-      setLoading(false);
+      console.error('Geocoding fetch error:', error);
+      setForecast([]);
+      setZipError(true);
     }
   };
 

@@ -498,21 +498,21 @@ function App() {
           )}
 
           {!showSettings && !zipError && (
-        <div className="h-[375px] overflow-y-auto space-y-1">
-          {loading && <p>Loading...</p>}
-          {forecast.map((hour, idx) => (
-{{ ... }}
-              key={idx}
-              className={`hourly-scoring-block ${getScoreColor(hour.score)} ${selectedHour === idx ? 'selected' : ''}`}
-              onClick={() => setSelectedHour(selectedHour === idx ? null : idx)}
-            >
-              <div className="time">
-                {formatDateTime(hour.time)}
-              </div>
+            <div className="h-[375px] overflow-y-auto space-y-1">
+              {loading && <p>Loading...</p>}
+              {forecast.map((hour, idx) => (
+                <div
+                  key={idx}
+                  className={`hourly-scoring-block ${getScoreColor(hour.score)} ${selectedHour === idx ? 'selected' : ''}`}
+                  onClick={() => setSelectedHour(selectedHour === idx ? null : idx)}
+                >
+                  <div className="time">
+                    {formatDateTime(hour.time)}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
       {selectedHour !== null && forecast[selectedHour] && (
         <div className="mt-6 p-4 border rounded bg-gray-800 text-white scoring-block">

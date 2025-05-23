@@ -185,7 +185,7 @@ export const activityDefaults = {
     temperatureRange: [40, 100],
     windSpeedMin: 0,
     windSpeedMax: 40,
-    windSpeedRange: [15, 30],
+    windSpeedRange: [10, 30],
     skyCoverMin: 0,
     skyCoverMax: 100,
     skyCoverRange: [0, 80],

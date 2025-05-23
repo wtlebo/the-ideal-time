@@ -171,12 +171,6 @@ function App() {
 
   const handleActivityChange = (e) => {
     console.log('GA: Attempting to track activity change', { new_activity: e.target.value });
-    if (typeof window.ga === 'function') {
-      console.log('GA: ga function found');
-      trackEvent('activity_changed', { new_activity: e.target.value });
-    } else {
-      console.log('GA: ga function NOT found');
-    }
     const selected = e.target.value;
     trackEvent('activity_changed', { new_activity: selected });
     setActivity(selected);
@@ -348,7 +342,7 @@ function App() {
           value={zipCode}
           onChange={(e) => setZipCode(e.target.value)}
           name="postal-code"
-          autocomplete="postal-code"
+          autoComplete="postal-code"
           />
         <select
           className="border rounded px-2 py-1 h-[32px] flex-grow"

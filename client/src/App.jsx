@@ -427,17 +427,8 @@ function App() {
             values[0] === min ? `no min - ${values[1]} ${unit}` : 
             values[1] === max ? `${values[0]} ${unit} - no max` : 
             `${values[0]} ${unit} - ${values[1]} ${unit}`}
-    });
-    const res = await fetch(`${getApiBaseUrl()}/conditions?${params}`);
-    const data = await res.json();
+    );
 
-    // Check for conditions error
-    if (data.error) {
-      console.error('Conditions error:', data.error);
-      setFetchError(true);
-      setLoading(false);
-      return;
-    }
 
     // Set location name if we got valid city/state
     if (data.city && data.state) {

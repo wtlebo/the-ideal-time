@@ -424,18 +424,18 @@ function App() {
         </div>
       )}
 
-      <div className="flex gap-2 items-center mb-1">
+       <div className="flex gap-2 items-center mb-1">
         <input
           type="text"
           placeholder="ZIP"
-          className="border rounded px-2 py-1 w-24 h-[32px]"
+          className="border rounded px-2 py-1 w-20 h-[32px]"
           value={zipCode}
           onChange={(e) => setZipCode(e.target.value)}
           name="postal-code"
           autoComplete="postal-code"
           />
         <select
-          className="border rounded px-2 py-1 h-[32px] flex-grow"
+          className="border rounded px-2 py-1 h-[32px] w-48"
           value={activity}
           onChange={handleActivityChange}
         >
@@ -447,16 +447,17 @@ function App() {
         </select>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="bg-blue-600 text-white px-4 py-1 rounded h-[32px] flex items-center justify-center"
+          className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
           title="Preferences"
         >
           <GearIcon className="w-4 h-4" />
         </button>
         <button
           onClick={fetchConditions}
-          className="bg-blue-600 text-white px-4 py-1 rounded h-[32px]"
+          className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
+          title="Check Conditions"
         >
-          Check
+          <span className="text-lg">✓</span>
         </button>
       </div>
 

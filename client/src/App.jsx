@@ -138,23 +138,6 @@ function App() {
   };
 
   const handleApplySettings = () => {
-    console.log('GA: Attempting to track settings applied');
-    if (typeof window.ga === 'function') {
-      console.log('GA: ga function found');
-      trackEvent('settings_applied', {
-        activity,
-        settings: {
-          tideRange,
-          temperatureRange,
-          windSpeedRange,
-          skyCoverRange,
-          precipChanceRange,
-          daylightRange
-        }
-      });
-    } else {
-      console.log('GA: ga function NOT found');
-    }
     trackEvent('settings_applied', {
       activity,
       settings: {
@@ -170,7 +153,6 @@ function App() {
   };
 
   const handleActivityChange = (e) => {
-    console.log('GA: Attempting to track activity change', { new_activity: e.target.value });
     const selected = e.target.value;
     trackEvent('activity_changed', { new_activity: selected });
     setActivity(selected);

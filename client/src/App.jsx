@@ -364,11 +364,16 @@ function App() {
             min={min}
             max={max}
             onChange={(values) => {
-              setValues(values);
+              // Ensure values are within min/max range and properly rounded
+              const normalizedValues = values.map(value => {
+                const rounded = Math.round((value - min) / step) * step + min;
+                return Math.max(min, Math.min(max, rounded));
+              });
+              setValues(normalizedValues);
               if (unit === 'min') {
-                localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
+                localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(normalizedValues));
               } else {
-                localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${activity}`, JSON.stringify(values));
+                localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${activity}`, JSON.stringify(normalizedValues));
               }
             }}
             renderTrack={({ props, children }) => {

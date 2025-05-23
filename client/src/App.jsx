@@ -470,7 +470,7 @@ function App() {
     <div className="px-4 pb-4 max-w-md mx-auto">
       <div>
         <div className="flex justify-center mb-4 w-full max-w-md mx-auto">
-          <img src={logo} alt="The Ideal Time Logo" className="h-12" />
+          <img src={logo} alt="The Ideal Time" />
         </div>
 
 

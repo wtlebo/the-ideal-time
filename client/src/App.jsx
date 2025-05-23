@@ -237,6 +237,9 @@ function App() {
         ) ? 1 : 0 : 1;
       }
       
+      // Calculate entry minutes for daylight check
+      const entryMinutes = new Date(entry.time).getHours() * 60 + new Date(entry.time).getMinutes();
+      
       // Daylight
       score += daylightEnabled ? (
         entryMinutes >= daylightRange[0] && entryMinutes <= daylightRange[1]

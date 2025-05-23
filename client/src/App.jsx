@@ -280,22 +280,22 @@ function App() {
 
   // Add state for each factor's checkbox
   const [tideEnabled, setTideEnabled] = useState(() => 
-    JSON.parse(localStorage.getItem(`tideEnabled_${activity}`)) ?? scoringConfig.relevantFactors.tide
+    JSON.parse(localStorage.getItem(`tideEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.tide
   );
   const [temperatureEnabled, setTemperatureEnabled] = useState(() => 
-    JSON.parse(localStorage.getItem(`temperatureEnabled_${activity}`)) ?? scoringConfig.relevantFactors.temperature
+    JSON.parse(localStorage.getItem(`temperatureEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.temperature
   );
   const [windSpeedEnabled, setWindSpeedEnabled] = useState(() => 
-    JSON.parse(localStorage.getItem(`windSpeedEnabled_${activity}`)) ?? scoringConfig.relevantFactors.windSpeed
+    JSON.parse(localStorage.getItem(`windSpeedEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.windSpeed
   );
   const [skyCoverEnabled, setSkyCoverEnabled] = useState(() => 
-    JSON.parse(localStorage.getItem(`skyCoverEnabled_${activity}`)) ?? scoringConfig.relevantFactors.skyCover
+    JSON.parse(localStorage.getItem(`skyCoverEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.skyCover
   );
   const [precipChanceEnabled, setPrecipChanceEnabled] = useState(() => 
-    JSON.parse(localStorage.getItem(`precipChanceEnabled_${activity}`)) ?? scoringConfig.relevantFactors.precipChance
+    JSON.parse(localStorage.getItem(`precipChanceEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.precipChance
   );
   const [daylightEnabled, setDaylightEnabled] = useState(() => 
-    JSON.parse(localStorage.getItem(`daylightEnabled_${activity}`)) ?? scoringConfig.relevantFactors.daylight
+    JSON.parse(localStorage.getItem(`daylightEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.daylight
   );
 
   useEffect(() => {

@@ -118,9 +118,7 @@ function App() {
     setForecast(prevForecast => scoreForecast(prevForecast));
   };
 
-  // Remove duplicate fetchConditions
-  // The loading state is now only set when we're actually fetching data in validateAndFetch
-  // and reset in fetchConditions when the request completes
+  const fetchConditions = async () => {
     trackEvent('zip_search', { zip_code: zipCode });
     let newForecast = [];
     setZipError(false);
@@ -166,6 +164,22 @@ function App() {
       
       // Process forecast data
       newForecast = data.forecast || [];
+      if (newForecast.length > 0) {
+        setForecast(scoreForecast(newForecast));
+        setLoading(false);
+      } else {
+        setForecast([]);
+        setFetchError(true);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Geocoding fetch error:', error);
+      setForecast([]);
+      setFetchError(true);
+      setLoading(false);
+    }
+  };
+
   const handleActivityChange = (e) => {
     const selected = e.target.value;
     trackEvent('activity_changed', { new_activity: selected });

@@ -5,7 +5,7 @@ import { activityDefaults } from './config/activityDefaults';
 import { trackPageView, trackEvent } from './utils/ga';
 import { getApiBaseUrl } from './config/api';
 import './styles/custom.css';
-import logo from './assets/logo.png';
+import logo from '/logo.png';
 
 
 

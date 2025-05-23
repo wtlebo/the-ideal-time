@@ -11,6 +11,8 @@ import './styles/custom.css';
 function App() {
   const [zipCode, setZipCode] = useState(() => localStorage.getItem('zipCode') || '');
   const [activity, setActivity] = useState(() => localStorage.getItem('selectedActivity') || 'paddleboarding');
+
+
   const [forecast, setForecast] = useState([]);
   const [stationId, setStationId] = useState('');
   const [stationName, setStationName] = useState('');
@@ -161,8 +163,8 @@ function App() {
   const handleActivityChange = (e) => {
     const selected = e.target.value;
     trackEvent('activity_changed', { new_activity: selected });
-    setActivity(selected);
-    localStorage.setItem('selectedActivity', selected);
+    
+    // Reset all ranges to activity defaults
     const defaults = activityDefaults[selected];
     setTideRange(defaults.tideRange);
     setTemperatureRange(defaults.temperatureRange);
@@ -170,6 +172,18 @@ function App() {
     setSkyCoverRange(defaults.skyCoverRange);
     setPrecipChanceRange(defaults.precipChanceRange);
     setDaylightRange(defaults.daylightRange);
+
+    // Reset all checkbox states to activity defaults
+    setTideEnabled(defaults.relevantFactors.tide);
+    setTemperatureEnabled(defaults.relevantFactors.temperature);
+    setWindSpeedEnabled(defaults.relevantFactors.windSpeed);
+    setSkyCoverEnabled(defaults.relevantFactors.skyCover);
+    setPrecipChanceEnabled(defaults.relevantFactors.precipChance);
+    setDaylightEnabled(defaults.relevantFactors.daylight);
+
+    // Update activity and save to localStorage
+    setActivity(selected);
+    localStorage.setItem('selectedActivity', selected);
   };
 
   const handleKeyDown = (e) => {

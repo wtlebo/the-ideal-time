@@ -5,6 +5,7 @@ import { activityDefaults } from './config/activityDefaults';
 import { trackPageView, trackEvent } from './utils/ga';
 import { getApiBaseUrl } from './config/api';
 import './styles/custom.css';
+import logo from './assets/logo.png';
 
 
 
@@ -454,6 +455,9 @@ function App() {
   return (
     <div className="px-4 pb-4 max-w-md mx-auto">
       <div>
+        <div className="flex justify-center mb-4">
+          <img src={logo} alt="The Ideal Time Logo" className="h-12" />
+        </div>
         {loading && (
           <div className="flex justify-center mb-2">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

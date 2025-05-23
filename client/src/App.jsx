@@ -134,6 +134,12 @@ function App() {
     setSkyCoverRange(defaults.skyCoverRange);
     setPrecipChanceRange(defaults.precipChanceRange);
     setDaylightRange(defaults.daylightRange);
+    setTideEnabled(defaults.relevantFactors.tide);
+    setTemperatureEnabled(defaults.relevantFactors.temperature);
+    setWindSpeedEnabled(defaults.relevantFactors.windSpeed);
+    setSkyCoverEnabled(defaults.relevantFactors.skyCover);
+    setPrecipChanceEnabled(defaults.relevantFactors.precipChance);
+    setDaylightEnabled(defaults.relevantFactors.daylight);
     //localStorage.setItem('daylightRange', JSON.stringify(defaultDaylight)); //delete this?
   };
 
@@ -187,7 +193,7 @@ function App() {
       let score = 0;
       
       // Tide
-      if (entry.tideHeight !== null) {
+      if (entry.tideHeight !== null && tideEnabled) {
         if (tideRange[0] === scoringConfig.tideMin) {
           score += entry.tideHeight <= tideRange[1] ? 1 : 0;
         } else if (tideRange[1] === scoringConfig.tideMax) {
@@ -198,7 +204,7 @@ function App() {
       }
       
       // Temperature
-      if (entry.temperature !== null) {
+      if (entry.temperature !== null && temperatureEnabled) {
         if (temperatureRange[0] === scoringConfig.temperatureMin) {
           score += entry.temperature <= temperatureRange[1] ? 1 : 0;
         } else if (temperatureRange[1] === scoringConfig.temperatureMax) {
@@ -209,7 +215,7 @@ function App() {
       }
       
       // Wind Speed
-      if (entry.windSpeed !== null) {
+      if (entry.windSpeed !== null && windSpeedEnabled) {
         if (windSpeedRange[0] === scoringConfig.windSpeedMin) {
           score += entry.windSpeed <= windSpeedRange[1] ? 1 : 0;
         } else if (windSpeedRange[1] === scoringConfig.windSpeedMax) {
@@ -220,7 +226,7 @@ function App() {
       }
       
       // Sky Cover
-      if (entry.skyCover !== null) {
+      if (entry.skyCover !== null && skyCoverEnabled) {
         if (skyCoverRange[0] === scoringConfig.skyCoverMin) {
           score += entry.skyCover <= skyCoverRange[1] ? 1 : 0;
         } else if (skyCoverRange[1] === scoringConfig.skyCoverMax) {
@@ -231,7 +237,7 @@ function App() {
       }
       
       // Precipitation
-      if (entry.precipChance !== null) {
+      if (entry.precipChance !== null && precipChanceEnabled) {
         if (precipChanceRange[0] === scoringConfig.precipChanceMin) {
           score += entry.precipChance <= precipChanceRange[1] ? 1 : 0;
         } else if (precipChanceRange[1] === scoringConfig.precipChanceMax) {
@@ -242,8 +248,10 @@ function App() {
       }
       
       // Daylight
-      const entryMinutes = new Date(entry.time).getHours() * 60 + new Date(entry.time).getMinutes();
-      score += entryMinutes >= daylightRange[0] && entryMinutes <= daylightRange[1] ? 1 : 0;
+      if (daylightEnabled) {
+        const entryMinutes = new Date(entry.time).getHours() * 60 + new Date(entry.time).getMinutes();
+        score += entryMinutes >= daylightRange[0] && entryMinutes <= daylightRange[1] ? 1 : 0;
+      }
       
       return { ...entry, score };
     });
@@ -278,11 +286,55 @@ function App() {
     return new Intl.DateTimeFormat(undefined, options).format(new Date(isoString));
   };
 
-  const renderSlider = (label, min, max, step, values, setValues, unit) => {
+  // Add state for each factor's checkbox
+  const [tideEnabled, setTideEnabled] = useState(() => 
+    JSON.parse(localStorage.getItem(`tideEnabled_${activity}`)) ?? scoringConfig.relevantFactors.tide
+  );
+  const [temperatureEnabled, setTemperatureEnabled] = useState(() => 
+    JSON.parse(localStorage.getItem(`temperatureEnabled_${activity}`)) ?? scoringConfig.relevantFactors.temperature
+  );
+  const [windSpeedEnabled, setWindSpeedEnabled] = useState(() => 
+    JSON.parse(localStorage.getItem(`windSpeedEnabled_${activity}`)) ?? scoringConfig.relevantFactors.windSpeed
+  );
+  const [skyCoverEnabled, setSkyCoverEnabled] = useState(() => 
+    JSON.parse(localStorage.getItem(`skyCoverEnabled_${activity}`)) ?? scoringConfig.relevantFactors.skyCover
+  );
+  const [precipChanceEnabled, setPrecipChanceEnabled] = useState(() => 
+    JSON.parse(localStorage.getItem(`precipChanceEnabled_${activity}`)) ?? scoringConfig.relevantFactors.precipChance
+  );
+  const [daylightEnabled, setDaylightEnabled] = useState(() => 
+    JSON.parse(localStorage.getItem(`daylightEnabled_${activity}`)) ?? scoringConfig.relevantFactors.daylight
+  );
+
+  useEffect(() => {
+    // Save enabled states to localStorage when activity changes
+    localStorage.setItem(`tideEnabled_${activity}`, JSON.stringify(tideEnabled));
+    localStorage.setItem(`temperatureEnabled_${activity}`, JSON.stringify(temperatureEnabled));
+    localStorage.setItem(`windSpeedEnabled_${activity}`, JSON.stringify(windSpeedEnabled));
+    localStorage.setItem(`skyCoverEnabled_${activity}`, JSON.stringify(skyCoverEnabled));
+    localStorage.setItem(`precipChanceEnabled_${activity}`, JSON.stringify(precipChanceEnabled));
+    localStorage.setItem(`daylightEnabled_${activity}`, JSON.stringify(daylightEnabled));
+  }, [activity, tideEnabled, temperatureEnabled, windSpeedEnabled, skyCoverEnabled, precipChanceEnabled, daylightEnabled]);
+
+  const renderSlider = (label, min, max, step, values, setValues, unit, enabled, setEnabled) => {
     return (
       <div className="mb-4">
-        <label className="block text-sm font-semibold text-white mb-1">{label}</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-sm font-semibold text-white">{label}</label>
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={(e) => setEnabled(e.target.checked)}
+            className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500"
+          />
+        </div>
         <div className="flex items-center gap-4">
+          {unit === '%' && (
+            <>
+              <span className="text-sm w-10 text-gray-100">0%</span>
+              <span className="text-sm w-10 text-gray-100">100%</span>
+            </>
+          )}
           <Range
             values={values}
             step={step}
@@ -350,6 +402,7 @@ function App() {
         </div>
         <div className="text-sm mt-1 text-gray-300">
           Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : 
+            unit === '%' ? `${values[0]}% - ${values[1]}%` : 
             values[0] === min ? `no min - ${values[1]} ${unit}` : 
             values[1] === max ? `${values[0]} ${unit} - no max` : 
             `${values[0]} ${unit} - ${values[1]} ${unit}`}
@@ -422,12 +475,12 @@ function App() {
           <h2 className="text-lg font-semibold text-white mb-4">
             Ideal conditions for {activityDefaults[activity].displayName}
           </h2>
-          {renderSlider('Time of Day', scoringConfig.daylightMin, scoringConfig.daylightMax, 15, daylightRange, setDaylightRange, 'min')}
-          {renderSlider('Temperature (°F)', scoringConfig.temperatureMin, scoringConfig.temperatureMax, 1, temperatureRange, setTemperatureRange, '°F')}
-          {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph')}
-          {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%')}
-          {renderSlider('Precipitation Chance (%)', scoringConfig.precipChanceMin, scoringConfig.precipChanceMax, 1, precipChanceRange, setPrecipChanceRange, '%')}
-          {renderSlider('Tide (ft)', scoringConfig.tideMin, scoringConfig.tideMax, 0.1, tideRange, setTideRange, 'ft')}
+          {renderSlider('Time of Day', scoringConfig.daylightMin, scoringConfig.daylightMax, 15, daylightRange, setDaylightRange, 'min', daylightEnabled, setDaylightEnabled)}
+          {renderSlider('Temperature (°F)', scoringConfig.temperatureMin, scoringConfig.temperatureMax, 1, temperatureRange, setTemperatureRange, '°F', temperatureEnabled, setTemperatureEnabled)}
+          {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph', windSpeedEnabled, setWindSpeedEnabled)}
+          {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%', skyCoverEnabled, setSkyCoverEnabled)}
+          {renderSlider('Precipitation Chance (%)', scoringConfig.precipChanceMin, scoringConfig.precipChanceMax, 1, precipChanceRange, setPrecipChanceRange, '%', precipChanceEnabled, setPrecipChanceEnabled)}
+          {renderSlider('Tide (ft)', scoringConfig.tideMin, scoringConfig.tideMax, 0.1, tideRange, setTideRange, 'ft', tideEnabled, setTideEnabled)}
           <div className="mt-4 flex justify-between items-center gap-2">
             <button
               onClick={handleRestoreDefaults}

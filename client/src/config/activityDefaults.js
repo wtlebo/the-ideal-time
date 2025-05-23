@@ -1,6 +1,14 @@
 export const activityDefaults = {
   carDriving: {
     displayName: 'Classic Car Driving',
+    relevantFactors: {
+      tide: false,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [-2, 15],
@@ -23,6 +31,14 @@ export const activityDefaults = {
   },
   cookout: {
     displayName: 'Cookout',
+    relevantFactors: {
+      tide: false,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [-2, 15],
@@ -45,6 +61,14 @@ export const activityDefaults = {
   },
   hiking: {
     displayName: 'Hiking',
+    relevantFactors: {
+      tide: false,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [-2, 15],
@@ -67,6 +91,14 @@ export const activityDefaults = {
   },
   kayaking: {
     displayName: 'Kayaking',
+    relevantFactors: {
+      tide: true,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [5, 15],
@@ -89,6 +121,14 @@ export const activityDefaults = {
   },
   motorboating: {
     displayName: 'Motorboating',
+    relevantFactors: {
+      tide: true,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [6, 15],
@@ -111,6 +151,14 @@ export const activityDefaults = {
   },
   paddleboarding: {
     displayName: 'Paddleboarding',
+    relevantFactors: {
+      tide: true,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [5, 15],
@@ -133,6 +181,14 @@ export const activityDefaults = {
   },
   polarplunging: {
     displayName: 'Polar Plunging',
+    relevantFactors: {
+      tide: true,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [7, 15],
@@ -155,6 +211,14 @@ export const activityDefaults = {
   },
   running: {
     displayName: 'Running',
+    relevantFactors: {
+      tide: false,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [-2, 15],
@@ -177,6 +241,14 @@ export const activityDefaults = {
   },
   sailing: {
     displayName: 'Sailing',
+    relevantFactors: {
+      tide: true,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [2, 15],
@@ -199,6 +271,14 @@ export const activityDefaults = {
   },
   sunbathing: {
     displayName: 'Sunbathing',
+    relevantFactors: {
+      tide: true,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [-2, 15],
@@ -221,6 +301,14 @@ export const activityDefaults = {
   },
   surfing: {
     displayName: 'Surfing',
+    relevantFactors: {
+      tide: true,
+      temperature: true,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
     tideMin: -2,
     tideMax: 15,
     tideRange: [4, 10],

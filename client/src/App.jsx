@@ -193,65 +193,54 @@ function App() {
       let score = 0;
       
       // Tide
-      if (entry.tideHeight !== null && tideEnabled) {
-        if (tideRange[0] === scoringConfig.tideMin) {
-          score += entry.tideHeight <= tideRange[1] ? 1 : 0;
-        } else if (tideRange[1] === scoringConfig.tideMax) {
-          score += entry.tideHeight >= tideRange[0] ? 1 : 0;
-        } else {
-          score += entry.tideHeight >= tideRange[0] && entry.tideHeight <= tideRange[1] ? 1 : 0;
-        }
+      if (entry.tideHeight !== null) {
+        score += tideEnabled ? (
+          tideRange[0] === scoringConfig.tideMin ? entry.tideHeight <= tideRange[1] : 
+          tideRange[1] === scoringConfig.tideMax ? entry.tideHeight >= tideRange[0] : 
+          entry.tideHeight >= tideRange[0] && entry.tideHeight <= tideRange[1]
+        ) ? 1 : 0 : 1;
       }
       
       // Temperature
-      if (entry.temperature !== null && temperatureEnabled) {
-        if (temperatureRange[0] === scoringConfig.temperatureMin) {
-          score += entry.temperature <= temperatureRange[1] ? 1 : 0;
-        } else if (temperatureRange[1] === scoringConfig.temperatureMax) {
-          score += entry.temperature >= temperatureRange[0] ? 1 : 0;
-        } else {
-          score += entry.temperature >= temperatureRange[0] && entry.temperature <= temperatureRange[1] ? 1 : 0;
-        }
+      if (entry.temperature !== null) {
+        score += temperatureEnabled ? (
+          temperatureRange[0] === scoringConfig.temperatureMin ? entry.temperature <= temperatureRange[1] : 
+          temperatureRange[1] === scoringConfig.temperatureMax ? entry.temperature >= temperatureRange[0] : 
+          entry.temperature >= temperatureRange[0] && entry.temperature <= temperatureRange[1]
+        ) ? 1 : 0 : 1;
       }
       
       // Wind Speed
-      if (entry.windSpeed !== null && windSpeedEnabled) {
-        if (windSpeedRange[0] === scoringConfig.windSpeedMin) {
-          score += entry.windSpeed <= windSpeedRange[1] ? 1 : 0;
-        } else if (windSpeedRange[1] === scoringConfig.windSpeedMax) {
-          score += entry.windSpeed >= windSpeedRange[0] ? 1 : 0;
-        } else {
-          score += entry.windSpeed >= windSpeedRange[0] && entry.windSpeed <= windSpeedRange[1] ? 1 : 0;
-        }
+      if (entry.windSpeed !== null) {
+        score += windSpeedEnabled ? (
+          windSpeedRange[0] === scoringConfig.windSpeedMin ? entry.windSpeed <= windSpeedRange[1] : 
+          windSpeedRange[1] === scoringConfig.windSpeedMax ? entry.windSpeed >= windSpeedRange[0] : 
+          entry.windSpeed >= windSpeedRange[0] && entry.windSpeed <= windSpeedRange[1]
+        ) ? 1 : 0 : 1;
       }
       
       // Sky Cover
-      if (entry.skyCover !== null && skyCoverEnabled) {
-        if (skyCoverRange[0] === scoringConfig.skyCoverMin) {
-          score += entry.skyCover <= skyCoverRange[1] ? 1 : 0;
-        } else if (skyCoverRange[1] === scoringConfig.skyCoverMax) {
-          score += entry.skyCover >= skyCoverRange[0] ? 1 : 0;
-        } else {
-          score += entry.skyCover >= skyCoverRange[0] && entry.skyCover <= skyCoverRange[1] ? 1 : 0;
-        }
+      if (entry.skyCover !== null) {
+        score += skyCoverEnabled ? (
+          skyCoverRange[0] === scoringConfig.skyCoverMin ? entry.skyCover <= skyCoverRange[1] : 
+          skyCoverRange[1] === scoringConfig.skyCoverMax ? entry.skyCover >= skyCoverRange[0] : 
+          entry.skyCover >= skyCoverRange[0] && entry.skyCover <= skyCoverRange[1]
+        ) ? 1 : 0 : 1;
       }
       
       // Precipitation
-      if (entry.precipChance !== null && precipChanceEnabled) {
-        if (precipChanceRange[0] === scoringConfig.precipChanceMin) {
-          score += entry.precipChance <= precipChanceRange[1] ? 1 : 0;
-        } else if (precipChanceRange[1] === scoringConfig.precipChanceMax) {
-          score += entry.precipChance >= precipChanceRange[0] ? 1 : 0;
-        } else {
-          score += entry.precipChance >= precipChanceRange[0] && entry.precipChance <= precipChanceRange[1] ? 1 : 0;
-        }
+      if (entry.precipChance !== null) {
+        score += precipChanceEnabled ? (
+          precipChanceRange[0] === scoringConfig.precipChanceMin ? entry.precipChance <= precipChanceRange[1] : 
+          precipChanceRange[1] === scoringConfig.precipChanceMax ? entry.precipChance >= precipChanceRange[0] : 
+          entry.precipChance >= precipChanceRange[0] && entry.precipChance <= precipChanceRange[1]
+        ) ? 1 : 0 : 1;
       }
       
       // Daylight
-      if (daylightEnabled) {
-        const entryMinutes = new Date(entry.time).getHours() * 60 + new Date(entry.time).getMinutes();
-        score += entryMinutes >= daylightRange[0] && entryMinutes <= daylightRange[1] ? 1 : 0;
-      }
+      score += daylightEnabled ? (
+        entryMinutes >= daylightRange[0] && entryMinutes <= daylightRange[1]
+      ) ? 1 : 0 : 1;
       
       return { ...entry, score };
     });

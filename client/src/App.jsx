@@ -329,12 +329,6 @@ function App() {
           />
         </div>
         <div className="flex items-center gap-4">
-          {label === 'Sky Cover (%)' || label === 'Precipitation Chance (%)' ? null : (
-            <>
-              <span className="text-sm w-10 text-gray-100">0%</span>
-              <span className="text-sm w-10 text-gray-100">100%</span>
-            </>
-          )}
           <Range
             values={values}
             step={step}

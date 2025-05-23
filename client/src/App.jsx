@@ -189,6 +189,7 @@ function App() {
       }
     });
     setShowSettings(false);
+    validateAndFetch();
   };
 
   const handleActivityChange = (e) => {

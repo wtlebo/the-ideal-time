@@ -455,14 +455,10 @@ function App() {
   return (
     <div className="px-4 pb-4 max-w-md mx-auto">
       <div>
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-4 w-full max-w-md mx-auto">
           <img src={logo} alt="The Ideal Time Logo" className="h-12" />
         </div>
-        {loading && (
-          <div className="flex justify-center mb-2">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        )}
+
 
         <div className="flex gap-2 items-center mb-1 w-full max-w-md mx-auto">
           <input

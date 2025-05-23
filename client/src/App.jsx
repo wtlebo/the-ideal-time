@@ -389,6 +389,7 @@ function App() {
         <div className="text-sm mt-1 text-gray-300">
           Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : 
             unit === '%' ? `${values[0]}% - ${values[1]}%` : 
+            values[0] === min && values[1] === max ? `no min - no max` : 
             values[0] === min ? `no min - ${values[1]} ${unit}` : 
             values[1] === max ? `${values[0]} ${unit} - no max` : 
             `${values[0]} ${unit} - ${values[1]} ${unit}`}

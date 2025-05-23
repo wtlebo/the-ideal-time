@@ -312,6 +312,8 @@ function App() {
     return new Intl.DateTimeFormat(undefined, options).format(new Date(isoString));
   };
 
+
+
   // Add state for each factor's checkbox
   const [tideEnabled, setTideEnabled] = useState(() => 
     JSON.parse(localStorage.getItem(`tideEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.tide
@@ -427,228 +429,158 @@ function App() {
             values[0] === min ? `no min - ${values[1]} ${unit}` : 
             values[1] === max ? `${values[0]} ${unit} - no max` : 
             `${values[0]} ${unit} - ${values[1]} ${unit}`}
+        </div>
+      </div>
     );
+  };
 
+  const handleApplySettings = () => {
+    trackEvent('settings_applied', {
+      activity,
+      settings: {
+        tideRange,
+        temperatureRange,
+        windSpeedRange,
+        skyCoverRange,
+        precipChanceRange,
+        daylightRange
+      }
+    });
+    setShowSettings(false);
+    // Only update scoring, don't fetch new data
+    setForecast(prevForecast => scoreForecast(prevForecast));
+  };
 
-    // Set location name if we got valid city/state
-    if (data.city && data.state) {
-      setLocationName(`${data.city}, ${data.state}`);
-    } else {
-      console.warn('No valid city/state found:', data);
-      setFetchError(true);
-      setLoading(false);
-      return;
-    }
-
-    // Set station and timezone info
-    setStationId(data.station_id || '');
-    setStationName(data.station_name || '');
-    setStationDistance(data.station_distance_miles || null);
-    setTimeZone(data.timezone || 'America/New_York');
-
-    // Process forecast data
-    newForecast = data.forecast || [];
-    if (newForecast.length > 0) {
-      setForecast(scoreForecast(newForecast));
-      setLoading(false);
-    } else {
-      setForecast([]);
-      setFetchError(true);
-      setLoading(false);
-    }
-  } catch (error) {
-    console.error('Geocoding fetch error:', error);
-    setForecast([]);
-    setFetchError(true);
-    setLoading(false);
-  }
-};
-
-const handleApplySettings = () => {
-  trackEvent('settings_applied', {
-    activity,
-    settings: {
-      tideRange,
-      temperatureRange,
-      windSpeedRange,
-      skyCoverRange,
-      precipChanceRange,
-      daylightRange
-    }
-  });
-  setShowSettings(false);
-  // Only update scoring, don't fetch new data
-  setForecast(prevForecast => scoreForecast(prevForecast));
-};
-
-const handleZipChange = (e) => {
-  setZipError(false);
-  setFetchError(false);
-  setZipCode(e.target.value);
-  if (e.target.value.length === 5 || e.target.value.length === 10) {
-    setLoading(true);
-    fetchConditions();
-  }
-};
-
-const handleKeyDown = (e) => {
-  if (e.key === 'Enter') {
-    setLoading(true);
-    fetchConditions();
-  }
-};
-
-return (
-  <div className="px-4 pb-4 max-w-md mx-auto">
-    <div className="flex justify-center mb-2">
-      <img src="/logo.png" alt="The Ideal Time" className="w-full max-h-96 object-contain" />
-    </div>
-
-    {loading && (
-      <div className="flex justify-center mb-2">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    )}
-
-    <div className="flex gap-2 items-center mb-1 w-full max-w-md mx-auto">
-      <input
-        type="text"
-        placeholder="ZIP"
-        className="border rounded px-2 py-1 w-28 h-[32px]"
-        value={zipCode}
-        onChange={handleZipChange}
-        onKeyDown={handleKeyDown}
-        name="postal-code"
-        autoComplete="postal-code"
-      />
-      <select
-        className="border rounded px-2 py-1 h-[32px] w-48"
-        value={activity}
-        onChange={handleActivityChange}
-      >
-        {Object.entries(activityDefaults).map(([key, config]) => (
-          <option key={key} value={key}>
-            {config.displayName}
-          </option>
-        ))}
-      </select>
-      <button
-        onClick={() => setShowSettings(!showSettings)}
-        className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
-        title="Preferences"
-      >
-        <GearIcon className="w-4 h-4" />
-      </button>
-      <button
-        onClick={validateAndFetch}
-        className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
-        title="Check Conditions"
-      >
-        <span className="text-lg">✓</span>
-      </button>
-            <option key={key} value={key}>
-              {config.displayName}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={() => setShowSettings(!showSettings)}
-          className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
-          title="Preferences"
-        >
-          <GearIcon className="w-4 h-4" />
-        </button>
-        <button
-          onClick={validateAndFetch}
-          className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
-          title="Check Conditions"
-        >
-          <span className="text-lg">✓</span>
-        </button>
-      </div>
-
-      {locationName && (
-        <div className="text-sm text-center text-gray-300 mb-2">{locationName}</div>
-      )}
-      {zipError && (
-        <div className="text-red-500 text-sm mb-2">
-          <strong>Error:</strong> Please enter a valid ZIP code (e.g., 12345 or 12345-6789)
-        </div>
-      )}
-      {fetchError && (
-        <div className="text-red-500 text-sm mb-2">
-          <strong>Error:</strong> Could not fetch conditions data
-        </div>
-      )}
-
-      {showSettings && (
-        <div className="mb-6 border rounded p-4 bg-gray-800">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Ideal conditions for {activityDefaults[activity].displayName}
-          </h2>
-          {renderSlider('Time of Day', scoringConfig.daylightMin, scoringConfig.daylightMax, 15, daylightRange, setDaylightRange, 'min', daylightEnabled, setDaylightEnabled)}
-          {renderSlider('Temperature (°F)', scoringConfig.temperatureMin, scoringConfig.temperatureMax, 1, temperatureRange, setTemperatureRange, '°F', temperatureEnabled, setTemperatureEnabled)}
-          {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph', windSpeedEnabled, setWindSpeedEnabled)}
-          {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%', skyCoverEnabled, setSkyCoverEnabled)}
-          {renderSlider('Precipitation Chance (%)', scoringConfig.precipChanceMin, scoringConfig.precipChanceMax, 1, precipChanceRange, setPrecipChanceRange, '%', precipChanceEnabled, setPrecipChanceEnabled)}
-          {renderSlider('Tide (ft)', scoringConfig.tideMin, scoringConfig.tideMax, 0.1, tideRange, setTideRange, 'ft', tideEnabled, setTideEnabled)}
-          <div className="mt-4 flex justify-between items-center gap-2">
-            <button
-              onClick={handleRestoreDefaults}
-              className="text-sm bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded"
-            >
-              Restore Defaults
-            </button>
-            <button
-              onClick={handleApplySettings}
-              className="text-sm bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
-            >
-              Apply
-            </button>
+  return (
+    <div className="px-4 pb-4 max-w-md mx-auto">
+      <div>
+        {loading && (
+          <div className="flex justify-center mb-2">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
-        </div>
-      )}
+        )}
 
-      {!showSettings && !zipError && (
-        <div className="h-[375px] overflow-y-auto space-y-1">
-          {loading && <p>Loading...</p>}
-          {forecast.map((hour, idx) => (
-            <div
-              key={idx}
-              className={`hourly-scoring-block ${getScoreColor(hour.score)} ${selectedHour === idx ? 'selected' : ''}`}
-              onClick={() => setSelectedHour(selectedHour === idx ? null : idx)}
-            >
-              <div className="time">
-                {formatDateTime(hour.time)}
-              </div>
+        <div className="flex gap-2 items-center mb-1 w-full max-w-md mx-auto">
+          <input
+            type="text"
+            placeholder="ZIP"
+            className="border rounded px-2 py-1 w-28 h-[32px]"
+            value={zipCode}
+            onChange={handleZipChange}
+            onKeyDown={handleKeyDown}
+            name="postal-code"
+            autoComplete="postal-code"
+          />
+          <select
+            className="border rounded px-2 py-1 h-[32px] w-48"
+            value={activity}
+            onChange={handleActivityChange}
+          >
+            {Object.entries(activityDefaults).map(([key, config]) => (
+              <option key={key} value={key}>
+                {config.displayName}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
+            title="Preferences"
+          >
+            <GearIcon className="w-4 h-4" />
+          </button>
+          <button
+            onClick={validateAndFetch}
+            className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
+            title="Check Conditions"
+          >
+            <span className="text-lg">✓</span>
+          </button>
+        </div>
+
+        {locationName && (
+          <div className="text-sm text-center text-gray-300 mb-2">{locationName}</div>
+        )}
+        {zipError && (
+          <div className="text-red-500 text-sm mb-2">
+            <strong>Error:</strong> Please enter a valid ZIP code (e.g., 12345 or 12345-6789)
+          </div>
+        )}
+        {fetchError && (
+          <div className="text-red-500 text-sm mb-2">
+            <strong>Error:</strong> Could not fetch conditions data
+          </div>
+        )}
+
+        {showSettings && (
+          <div className="mb-6 border rounded p-4 bg-gray-800">
+            <h2 className="text-lg font-semibold text-white mb-4">
+              Ideal conditions for {activityDefaults[activity].displayName}
+            </h2>
+            {renderSlider('Time of Day', scoringConfig.daylightMin, scoringConfig.daylightMax, 15, daylightRange, setDaylightRange, 'min', daylightEnabled, setDaylightEnabled)}
+            {renderSlider('Temperature (°F)', scoringConfig.temperatureMin, scoringConfig.temperatureMax, 1, temperatureRange, setTemperatureRange, '°F', temperatureEnabled, setTemperatureEnabled)}
+            {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph', windSpeedEnabled, setWindSpeedEnabled)}
+            {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%', skyCoverEnabled, setSkyCoverEnabled)}
+            {renderSlider('Precipitation Chance (%)', scoringConfig.precipChanceMin, scoringConfig.precipChanceMax, 1, precipChanceRange, setPrecipChanceRange, '%', precipChanceEnabled, setPrecipChanceEnabled)}
+            {renderSlider('Tide (ft)', scoringConfig.tideMin, scoringConfig.tideMax, 0.1, tideRange, setTideRange, 'ft', tideEnabled, setTideEnabled)}
+            <div className="mt-4 flex justify-between items-center gap-2">
+              <button
+                onClick={handleRestoreDefaults}
+                className="text-sm bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded"
+              >
+                Restore Defaults
+              </button>
+              <button
+                onClick={handleApplySettings}
+                className="text-sm bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+              >
+                Apply
+              </button>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
 
-      {selectedHour !== null && forecast[selectedHour] && (
-        <div className="mt-6 p-4 border rounded bg-gray-800 text-white scoring-block">
-          <h2 className="text-xl font-bold mb-2">
-            Details for {formatDetailDateTime(forecast[selectedHour].time)}
-          </h2>
-          <ul className="space-y-1">
-            <li className="font-bold">Temp: {forecast[selectedHour].temperature} °F</li>
-            <li className="font-bold">Wind: {forecast[selectedHour].windSpeed} mph from the {forecast[selectedHour].windDirection}</li>
-            <li className="font-bold">Precipitation: {forecast[selectedHour].precipChance}%</li>
-            <li className="font-bold">Sky Cover: {forecast[selectedHour].skyCover}%</li>
-            <li className="font-bold">Tide Height: {forecast[selectedHour].tideHeight ?? 'n/a'} ft</li>
-            {forecast[selectedHour].waterTemp !== 'n/a' && forecast[selectedHour].waterTemp !== null && (
-              <li className="font-bold">Water Temp: {forecast[selectedHour].waterTemp} °F</li>
-            )}
-            <li className="font-bold">Daylight: {forecast[selectedHour].isDaylight ? 'Yes' : 'No'}</li>
-            <li className="font-bold">Summary: {forecast[selectedHour].summary}</li>
-          </ul>
-          <p className="mt-4 text-sm text-gray-400">
-            Source: <a href="https://www.weather.gov/documentation/services-web-api" className="underline text-blue-300" target="_blank" rel="noopener noreferrer">NOAA Weather API</a> and <a href={`https://tidesandcurrents.noaa.gov/stationhome.html?id=${stationId}`} className="underline text-blue-300" target="_blank" rel="noopener noreferrer">NOAA Tides & Currents for Station {stationId}</a>
-            {stationDistance && <> ({parseInt(stationDistance)} miles away)</>}
-          </p>
-        </div>
-      )}
+        {!showSettings && !zipError && (
+          <div className="h-[375px] overflow-y-auto space-y-1">
+            {loading && <p>Loading...</p>}
+            {forecast.map((hour, idx) => (
+              <div
+                key={idx}
+                className={`hourly-scoring-block ${getScoreColor(hour.score)} ${selectedHour === idx ? 'selected' : ''}`}
+                onClick={() => setSelectedHour(selectedHour === idx ? null : idx)}
+              >
+                <div className="time">
+                  {formatDateTime(hour.time)}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selectedHour !== null && forecast[selectedHour] && (
+          <div className="mt-6 p-4 border rounded bg-gray-800 text-white scoring-block">
+            <h2 className="text-xl font-bold mb-2">
+              Details for {formatDetailDateTime(forecast[selectedHour].time)}
+            </h2>
+            <ul className="space-y-1">
+              <li className="font-bold">Temp: {forecast[selectedHour].temperature} °F</li>
+              <li className="font-bold">Wind: {forecast[selectedHour].windSpeed} mph from the {forecast[selectedHour].windDirection}</li>
+              <li className="font-bold">Precipitation: {forecast[selectedHour].precipChance}%</li>
+              <li className="font-bold">Sky Cover: {forecast[selectedHour].skyCover}%</li>
+              <li className="font-bold">Tide Height: {forecast[selectedHour].tideHeight ?? 'n/a'} ft</li>
+              {forecast[selectedHour].waterTemp !== 'n/a' && forecast[selectedHour].waterTemp !== null && (
+                <li className="font-bold">Water Temp: {forecast[selectedHour].waterTemp} °F</li>
+              )}
+              <li className="font-bold">Daylight: {forecast[selectedHour].isDaylight ? 'Yes' : 'No'}</li>
+              <li className="font-bold">Summary: {forecast[selectedHour].summary}</li>
+            </ul>
+            <p className="mt-4 text-sm text-gray-400">
+              Source: <a href="https://www.weather.gov/documentation/services-web-api" className="underline text-blue-300" target="_blank" rel="noopener noreferrer">NOAA Weather API</a> and <a href={`https://tidesandcurrents.noaa.gov/stationhome.html?id=${stationId}`} className="underline text-blue-300" target="_blank" rel="noopener noreferrer">NOAA Tides & Currents for Station {stationId}</a>
+              {stationDistance && <> ({parseInt(stationDistance)} miles away)</>}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

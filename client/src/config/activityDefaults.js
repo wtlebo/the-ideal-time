@@ -37,7 +37,7 @@ export const activityDefaults = {
     skyCoverRange: [0, 28],
     precipChanceMin: 0,
     precipChanceMax: 100,
-    precipChanceRange: [0, 5],
+    precipChanceRange: [0, 10],
     daylightMin: 0, // 12:00 AM
     daylightMax: 1439, // 11:59 PM
     daylightRange: [1020, 1200], // 5:00 PM to 8:00 PM

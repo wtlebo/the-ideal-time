@@ -185,13 +185,66 @@ function App() {
   const scoreForecast = (rawForecast) => {
     return rawForecast.map(entry => {
       let score = 0;
-      if (entry.tideHeight !== null && tideRange[0] <= entry.tideHeight && entry.tideHeight <= tideRange[1]) score++;
-      if (entry.temperature !== null && temperatureRange[0] <= entry.temperature && entry.temperature <= temperatureRange[1]) score++;
-      if (entry.windSpeed !== null && windSpeedRange[0] <= entry.windSpeed && entry.windSpeed <= windSpeedRange[1]) score++;
-      if (entry.skyCover !== null && skyCoverRange[0] <= entry.skyCover && entry.skyCover <= skyCoverRange[1]) score++;
-      if (entry.precipChance !== null && precipChanceRange[0] <= entry.precipChance && entry.precipChance <= precipChanceRange[1]) score++;
+      
+      // Tide
+      if (entry.tideHeight !== null) {
+        if (tideRange[0] === scoringConfig.tideMin) {
+          score += entry.tideHeight <= tideRange[1] ? 1 : 0;
+        } else if (tideRange[1] === scoringConfig.tideMax) {
+          score += entry.tideHeight >= tideRange[0] ? 1 : 0;
+        } else {
+          score += entry.tideHeight >= tideRange[0] && entry.tideHeight <= tideRange[1] ? 1 : 0;
+        }
+      }
+      
+      // Temperature
+      if (entry.temperature !== null) {
+        if (temperatureRange[0] === scoringConfig.temperatureMin) {
+          score += entry.temperature <= temperatureRange[1] ? 1 : 0;
+        } else if (temperatureRange[1] === scoringConfig.temperatureMax) {
+          score += entry.temperature >= temperatureRange[0] ? 1 : 0;
+        } else {
+          score += entry.temperature >= temperatureRange[0] && entry.temperature <= temperatureRange[1] ? 1 : 0;
+        }
+      }
+      
+      // Wind Speed
+      if (entry.windSpeed !== null) {
+        if (windSpeedRange[0] === scoringConfig.windSpeedMin) {
+          score += entry.windSpeed <= windSpeedRange[1] ? 1 : 0;
+        } else if (windSpeedRange[1] === scoringConfig.windSpeedMax) {
+          score += entry.windSpeed >= windSpeedRange[0] ? 1 : 0;
+        } else {
+          score += entry.windSpeed >= windSpeedRange[0] && entry.windSpeed <= windSpeedRange[1] ? 1 : 0;
+        }
+      }
+      
+      // Sky Cover
+      if (entry.skyCover !== null) {
+        if (skyCoverRange[0] === scoringConfig.skyCoverMin) {
+          score += entry.skyCover <= skyCoverRange[1] ? 1 : 0;
+        } else if (skyCoverRange[1] === scoringConfig.skyCoverMax) {
+          score += entry.skyCover >= skyCoverRange[0] ? 1 : 0;
+        } else {
+          score += entry.skyCover >= skyCoverRange[0] && entry.skyCover <= skyCoverRange[1] ? 1 : 0;
+        }
+      }
+      
+      // Precipitation
+      if (entry.precipChance !== null) {
+        if (precipChanceRange[0] === scoringConfig.precipChanceMin) {
+          score += entry.precipChance <= precipChanceRange[1] ? 1 : 0;
+        } else if (precipChanceRange[1] === scoringConfig.precipChanceMax) {
+          score += entry.precipChance >= precipChanceRange[0] ? 1 : 0;
+        } else {
+          score += entry.precipChance >= precipChanceRange[0] && entry.precipChance <= precipChanceRange[1] ? 1 : 0;
+        }
+      }
+      
+      // Daylight
       const entryMinutes = new Date(entry.time).getHours() * 60 + new Date(entry.time).getMinutes();
-      if (entryMinutes >= daylightRange[0] && entryMinutes <= daylightRange[1]) score++;
+      score += entryMinutes >= daylightRange[0] && entryMinutes <= daylightRange[1] ? 1 : 0;
+      
       return { ...entry, score };
     });
   };

@@ -59,8 +59,52 @@ function App() {
   const [precipChanceEnabled, setPrecipChanceEnabled] = useState(activityDefaults[activity].relevantFactors.precipChance);
   const [daylightEnabled, setDaylightEnabled] = useState(activityDefaults[activity].relevantFactors.daylight);
 
+  // Save slider values to localStorage immediately when they change
+  useEffect(() => {
+    localStorage.setItem(`tide_${activity}`, JSON.stringify(tideRange));
+  }, [tideRange, activity]);
+
+  useEffect(() => {
+    localStorage.setItem(`temperature_${activity}`, JSON.stringify(temperatureRange));
+  }, [temperatureRange, activity]);
+
+  useEffect(() => {
+    localStorage.setItem(`windspeed_${activity}`, JSON.stringify(windSpeedRange));
+  }, [windSpeedRange, activity]);
+
+  useEffect(() => {
+    localStorage.setItem(`skycover_${activity}`, JSON.stringify(skyCoverRange));
+  }, [skyCoverRange, activity]);
+
+  useEffect(() => {
+    localStorage.setItem(`precipchance_${activity}`, JSON.stringify(precipChanceRange));
+  }, [precipChanceRange, activity]);
+
+  useEffect(() => {
+    localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(daylightRange));
+  }, [daylightRange, activity]);
+
   // Handle activity changes by restoring settings from localStorage
   useEffect(() => {
+    // Restore ranges from localStorage
+    setTideRange(JSON.parse(localStorage.getItem(`tide_${activity}`)) || scoringConfig.tideRange);
+    setTemperatureRange(JSON.parse(localStorage.getItem(`temperature_${activity}`)) || scoringConfig.temperatureRange);
+    setWindSpeedRange(JSON.parse(localStorage.getItem(`windspeed_${activity}`)) || scoringConfig.windSpeedRange);
+    setSkyCoverRange(JSON.parse(localStorage.getItem(`skycover_${activity}`)) || scoringConfig.skyCoverRange);
+    setPrecipChanceRange(JSON.parse(localStorage.getItem(`precipchance_${activity}`)) || scoringConfig.precipChanceRange);
+    setDaylightRange(JSON.parse(localStorage.getItem(`daylightRange_${activity}`)) || scoringConfig.daylightRange);
+
+    // Restore enabled states from localStorage
+    setTideEnabled(JSON.parse(localStorage.getItem(`tideEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.tide);
+    setTemperatureEnabled(JSON.parse(localStorage.getItem(`temperatureEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.temperature);
+    setWindSpeedEnabled(JSON.parse(localStorage.getItem(`windSpeedEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.windSpeed);
+    setSkyCoverEnabled(JSON.parse(localStorage.getItem(`skyCoverEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.skyCover);
+    setPrecipChanceEnabled(JSON.parse(localStorage.getItem(`precipChanceEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.precipChance);
+    setDaylightEnabled(JSON.parse(localStorage.getItem(`daylightEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.daylight);
+
+    // Save the new activity to localStorage
+    localStorage.setItem('selectedActivity', activity);
+  }, [activity]);
     // Restore ranges from localStorage
     setTideRange(JSON.parse(localStorage.getItem(`tide_ft_${activity}`)) || scoringConfig.tideRange);
     setTemperatureRange(JSON.parse(localStorage.getItem(`temperature_°f_${activity}`)) || scoringConfig.temperatureRange);
@@ -330,22 +374,6 @@ function App() {
   // Add state for each factor's checkbox
   // Handle activity changes by restoring settings from localStorage
   useEffect(() => {
-    // Restore ranges from localStorage
-    setTideRange(JSON.parse(localStorage.getItem(`tide_ft_${activity}`)) || scoringConfig.tideRange);
-    setTemperatureRange(JSON.parse(localStorage.getItem(`temperature_°f_${activity}`)) || scoringConfig.temperatureRange);
-    setWindSpeedRange(JSON.parse(localStorage.getItem(`windSpeed_mph_${activity}`)) || scoringConfig.windSpeedRange);
-    setSkyCoverRange(JSON.parse(localStorage.getItem(`skyCover_%_${activity}`)) || scoringConfig.skyCoverRange);
-    setPrecipChanceRange(JSON.parse(localStorage.getItem(`precipChance_%_${activity}`)) || scoringConfig.precipChanceRange);
-    setDaylightRange(JSON.parse(localStorage.getItem(`daylightRange_${activity}`)) || scoringConfig.daylightRange);
-
-    // Restore enabled states from localStorage
-    setTideEnabled(JSON.parse(localStorage.getItem(`tideEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.tide);
-    setTemperatureEnabled(JSON.parse(localStorage.getItem(`temperatureEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.temperature);
-    setWindSpeedEnabled(JSON.parse(localStorage.getItem(`windSpeedEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.windSpeed);
-    setSkyCoverEnabled(JSON.parse(localStorage.getItem(`skyCoverEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.skyCover);
-    setPrecipChanceEnabled(JSON.parse(localStorage.getItem(`precipChanceEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.precipChance);
-    setDaylightEnabled(JSON.parse(localStorage.getItem(`daylightEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.daylight);
-
     // Save the new activity to localStorage
     localStorage.setItem('selectedActivity', activity);
   }, [activity]);
@@ -379,11 +407,9 @@ function App() {
                 return Math.max(min, Math.min(max, rounded));
               });
               setValues(normalizedValues);
-              if (unit === 'min') {
-                localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(normalizedValues));
-              } else {
-                localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${activity}`, JSON.stringify(normalizedValues));
-              }
+              // Standardize the key format for all slider values
+              const key = unit === 'min' ? 'daylightRange' : label.toLowerCase().replace(/[^a-z0-9]/gi, '_');
+              localStorage.setItem(`${key}_${activity}`, JSON.stringify(normalizedValues));
             }}
             renderTrack={({ props, children }) => {
               const trackStyle = {

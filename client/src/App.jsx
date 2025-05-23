@@ -335,15 +335,55 @@ function App() {
     JSON.parse(localStorage.getItem(`daylightEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.daylight
   );
 
+  // Save slider values to localStorage when they change
   useEffect(() => {
-    // Save enabled states to localStorage when activity changes
+    localStorage.setItem(`tide_ft_${activity}`, JSON.stringify(tideRange));
+  }, [tideRange, activity]);
+
+  useEffect(() => {
+    localStorage.setItem(`temperature_°f_${activity}`, JSON.stringify(temperatureRange));
+  }, [temperatureRange, activity]);
+
+  useEffect(() => {
+    localStorage.setItem(`windSpeed_mph_${activity}`, JSON.stringify(windSpeedRange));
+  }, [windSpeedRange, activity]);
+
+  useEffect(() => {
+    localStorage.setItem(`skyCover_%_${activity}`, JSON.stringify(skyCoverRange));
+  }, [skyCoverRange, activity]);
+
+  useEffect(() => {
+    localStorage.setItem(`precipChance_%_${activity}`, JSON.stringify(precipChanceRange));
+  }, [precipChanceRange, activity]);
+
+  useEffect(() => {
+    localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(daylightRange));
+  }, [daylightRange, activity]);
+
+  // Save enabled states to localStorage when they change
+  useEffect(() => {
     localStorage.setItem(`tideEnabled_${activity}`, JSON.stringify(tideEnabled));
+  }, [tideEnabled, activity]);
+
+  useEffect(() => {
     localStorage.setItem(`temperatureEnabled_${activity}`, JSON.stringify(temperatureEnabled));
+  }, [temperatureEnabled, activity]);
+
+  useEffect(() => {
     localStorage.setItem(`windSpeedEnabled_${activity}`, JSON.stringify(windSpeedEnabled));
+  }, [windSpeedEnabled, activity]);
+
+  useEffect(() => {
     localStorage.setItem(`skyCoverEnabled_${activity}`, JSON.stringify(skyCoverEnabled));
+  }, [skyCoverEnabled, activity]);
+
+  useEffect(() => {
     localStorage.setItem(`precipChanceEnabled_${activity}`, JSON.stringify(precipChanceEnabled));
+  }, [precipChanceEnabled, activity]);
+
+  useEffect(() => {
     localStorage.setItem(`daylightEnabled_${activity}`, JSON.stringify(daylightEnabled));
-  }, [activity, tideEnabled, temperatureEnabled, windSpeedEnabled, skyCoverEnabled, precipChanceEnabled, daylightEnabled]);
+  }, [daylightEnabled, activity]);
 
   const renderSlider = (label, min, max, step, values, setValues, unit, enabled, setEnabled) => {
     return (
@@ -353,7 +393,11 @@ function App() {
           <input
             type="checkbox"
             checked={enabled}
-            onChange={(e) => setEnabled(e.target.checked)}
+            onChange={(e) => {
+              const newState = e.target.checked;
+              setEnabled(newState);
+              localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_enabled_${activity}`, JSON.stringify(newState));
+            }}
             className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500"
           />
         </div>

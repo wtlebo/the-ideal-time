@@ -306,16 +306,6 @@ function App() {
     JSON.parse(localStorage.getItem(`daylightEnabled_${activity}`)) ?? scoringConfig.relevantFactors.daylight
   );
 
-  useEffect(() => {
-    // Save enabled states to localStorage when activity changes
-    localStorage.setItem(`tideEnabled_${activity}`, JSON.stringify(tideEnabled));
-    localStorage.setItem(`temperatureEnabled_${activity}`, JSON.stringify(temperatureEnabled));
-    localStorage.setItem(`windSpeedEnabled_${activity}`, JSON.stringify(windSpeedEnabled));
-    localStorage.setItem(`skyCoverEnabled_${activity}`, JSON.stringify(skyCoverEnabled));
-    localStorage.setItem(`precipChanceEnabled_${activity}`, JSON.stringify(precipChanceEnabled));
-    localStorage.setItem(`daylightEnabled_${activity}`, JSON.stringify(daylightEnabled));
-  }, [activity, tideEnabled, temperatureEnabled, windSpeedEnabled, skyCoverEnabled, precipChanceEnabled, daylightEnabled]);
-
   const renderSlider = (label, min, max, step, values, setValues, unit, enabled, setEnabled) => {
     return (
       <div className="mb-4">
@@ -328,181 +318,173 @@ function App() {
             className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500"
           />
         </div>
-        <div className="flex items-center gap-4">
-          {unit === '%' && (
-            <>
-              <span className="text-sm w-10 text-gray-100">0%</span>
-              <span className="text-sm w-10 text-gray-100">100%</span>
-            </>
-          )}
-          <Range
-            values={values}
-            step={step}
-            min={min}
-            max={max}
-            onChange={(values) => {
-              setValues(values);
-              if (unit === 'min') {
-                localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
-              } else {
-                localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${activity}`, JSON.stringify(values));
-              }
-            }}
-            renderTrack={({ props, children }) => {
-              const trackStyle = {
-                height: '6px',
-                width: '100%',
-                display: 'flex'
-              };
-
-              // Extract key from props if it exists
-              const { key, ...restProps } = props;
-
-              const backgroundStyles = [
-                {
-                  flex: `${(values[0] - min) / (max - min)}`,
-                  backgroundColor: '#ccc',
-                  height: '4px',
-                  alignSelf: 'center'
-                },
-                {
-                  flex: `${(values[1] - values[0]) / (max - min)}`,
-                  backgroundColor: '#0d9488',
-                  height: '6px',
-                  alignSelf: 'center'
-                },
-                {
-                  flex: `${(max - values[1]) / (max - min)}`,
-                  backgroundColor: '#ccc',
-                  height: '4px',
-                  alignSelf: 'center'
-                }
-              ];
-
-              return (
-                <div key={key} {...restProps} style={{ ...restProps.style, ...trackStyle }}>
-                  {backgroundStyles.map((style, idx) => (
-                    <div key={idx} style={style} />
-                  ))}
-                  {children}
-                </div>
-              );
-            }}
-            renderThumb={({ props }) => {
-              const { key, ...restProps } = props;
-              return (
-                <div
-                  key={key}
-                  {...restProps}
-                  className="h-4 w-4 bg-white border border-gray-400 rounded-full shadow"
-                />
-              );
-            }}
-          />
-        </div>
-        <div className="text-sm mt-1 text-gray-300">
-          Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : 
-            unit === '%' ? `${values[0]}% - ${values[1]}%` : 
-            values[0] === min ? `no min - ${values[1]} ${unit}` : 
-            values[1] === max ? `${values[0]} ${unit} - no max` : 
-            `${values[0]} ${unit} - ${values[1]} ${unit}`}
-        </div>
+        {enabled && (
+          <>
+            <div className="flex items-center gap-4">
+              <Range
+                values={values}
+                step={step}
+                min={min}
+                max={max}
+                onChange={(values) => {
+                  setValues(values);
+                  if (unit === 'min') {
+                    localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(values));
+                  } else {
+                    localStorage.setItem(`${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${activity}`, JSON.stringify(values));
+                  }
+                }}
+                renderTrack={({ props, children }) => {
+                  const trackStyle = {
+                    height: '6px',
+                    width: '100%',
+                    display: 'flex'
+                  };
+                  const { key, ...restProps } = props;
+                  
+                  // Only show labels for non-percentage sliders
+                  const showLabels = unit !== '%';
+                  
+                  return (
+                    <div key={key} {...restProps} style={{ ...restProps.style, ...trackStyle }}>
+                      {showLabels && (
+                        <div style={{
+                          position: 'absolute',
+                          left: '0',
+                          top: '-1.5em',
+                          fontSize: '0.75em',
+                          color: '#ccc'
+                        }}>
+                          {min}
+                        </div>
+                      )}
+                      {showLabels && (
+                        <div style={{
+                          position: 'absolute',
+                          right: '0',
+                          top: '-1.5em',
+                          fontSize: '0.75em',
+                          color: '#ccc'
+                        }}>
+                          {max}
+                        </div>
+                      )}
+                      {backgroundStyles.map((style, idx) => (
+                        <div key={idx} style={style} />
+                      ))}
+                      {children}
+                    </div>
+                  );
+                }}
+                renderThumb={({ props }) => {
+                  const { key, ...restProps } = props;
+                  return (
+                    <div
+                      key={key}
+                      {...restProps}
+                      className="h-4 w-4 bg-white border border-gray-400 rounded-full shadow"
+                    />
+                  );
+                }}
+              />
+            </div>
+            <div className="text-sm mt-1 text-gray-300">
+              Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : 
+                unit === '%' ? `${values[0]}% - ${values[1]}%` : 
+                values[0] === min ? `no min - ${values[1]} ${unit}` : 
+                values[1] === max ? `${values[0]} ${unit} - no max` : 
+                `${values[0]} ${unit} - ${values[1]} ${unit}`}
+            </div>
+          </>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="px-4 pb-4 max-w-md mx-auto">
-      <div className="flex justify-center mb-2">
-        <img src="/logo.png" alt="The Ideal Time" className="w-full max-h-96 object-contain" />
-      </div>
-
-      {loading && (
-        <div className="flex justify-center mb-2">
-          
-        </div>
-      )}
-
-      <div className="flex gap-2 items-center mb-1">
-        <input
-          type="text"
-          placeholder="ZIP"
-          className="border rounded px-2 py-1 w-24 h-[32px]"
-          value={zipCode}
-          onChange={(e) => setZipCode(e.target.value)}
-          name="postal-code"
-          autoComplete="postal-code"
-          />
-        <select
-          className="border rounded px-2 py-1 h-[32px] flex-grow"
-          value={activity}
-          onChange={handleActivityChange}
-        >
-          {Object.entries(activityDefaults).map(([key, config]) => (
-            <option key={key} value={key}>
-              {config.displayName}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={() => setShowSettings(!showSettings)}
-          className="bg-blue-600 text-white px-4 py-1 rounded h-[32px] flex items-center justify-center"
-          title="Preferences"
-        >
-          <GearIcon className="w-4 h-4" />
-        </button>
-        <button
-          onClick={fetchConditions}
-          className="bg-blue-600 text-white px-4 py-1 rounded h-[32px]"
-        >
-          Check
-        </button>
-      </div>
-
-      {locationName && (
-        <div className="text-sm text-center text-gray-300 mb-2">{locationName}</div>
-      )}
-
-      {zipError && (
-        <div className="text-red-500 text-sm mb-2">
-          {zipError ? 'Please enter a valid ZIP code' : 'Could not fetch conditions data'}
-        </div>
-      )}
-
-
-      {showSettings && (
-        <div className="mb-6 border rounded p-4 bg-gray-800">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Ideal conditions for {activityDefaults[activity].displayName}
-          </h2>
-          {renderSlider('Time of Day', scoringConfig.daylightMin, scoringConfig.daylightMax, 15, daylightRange, setDaylightRange, 'min', daylightEnabled, setDaylightEnabled)}
-          {renderSlider('Temperature (°F)', scoringConfig.temperatureMin, scoringConfig.temperatureMax, 1, temperatureRange, setTemperatureRange, '°F', temperatureEnabled, setTemperatureEnabled)}
-          {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph', windSpeedEnabled, setWindSpeedEnabled)}
-          {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%', skyCoverEnabled, setSkyCoverEnabled)}
-          {renderSlider('Precipitation Chance (%)', scoringConfig.precipChanceMin, scoringConfig.precipChanceMax, 1, precipChanceRange, setPrecipChanceRange, '%', precipChanceEnabled, setPrecipChanceEnabled)}
-          {renderSlider('Tide (ft)', scoringConfig.tideMin, scoringConfig.tideMax, 0.1, tideRange, setTideRange, 'ft', tideEnabled, setTideEnabled)}
-          <div className="mt-4 flex justify-between items-center gap-2">
-            <button
-              onClick={handleRestoreDefaults}
-              className="text-sm bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded"
+    <div className="min-h-screen bg-gray-900 text-white">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex justify-between items-center mb-4">
+            <select
+              value={activity}
+              onChange={handleActivityChange}
+              className="bg-gray-700 text-white px-2 py-1 rounded"
             >
-              Restore Defaults
-            </button>
+              {Object.entries(activityDefaults).map(([key, { displayName }]) => (
+                <option key={key} value={key}>{displayName}</option>
+              ))}
+            </select>
             <button
-              onClick={handleApplySettings}
-              className="text-sm bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+              onClick={() => setShowSettings(!showSettings)}
+              className="text-sm bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded"
             >
-              Apply
+              {showSettings ? 'Hide Settings' : 'Settings'}
             </button>
           </div>
-        </div>
-      )}
 
-      {!showSettings && !zipError && (
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Enter ZIP code"
+                className="w-full bg-gray-700 text-white px-2 py-1 rounded focus:outline-none"
+              />
+            </div>
+            <button
+              onClick={fetchConditions}
+              className="bg-blue-600 text-white px-4 py-1 rounded h-[32px]"
+            >
+              Check
+            </button>
+          </div>
+
+          {locationName && (
+            <div className="text-sm text-center text-gray-300 mb-2">{locationName}</div>
+          )}
+
+          {zipError && (
+            <div className="text-red-500 text-sm mb-2">
+              {zipError ? 'Please enter a valid ZIP code' : 'Could not fetch conditions data'}
+            </div>
+          )}
+
+          {showSettings && !zipError && (
+            <div className="mb-6 border rounded p-4 bg-gray-800">
+              <h2 className="text-lg font-semibold text-white mb-4">
+                Ideal conditions for {activityDefaults[activity].displayName}
+              </h2>
+              {renderSlider('Time of Day', scoringConfig.daylightMin, scoringConfig.daylightMax, 15, daylightRange, setDaylightRange, 'min', daylightEnabled, setDaylightEnabled)}
+              {renderSlider('Temperature (°F)', scoringConfig.temperatureMin, scoringConfig.temperatureMax, 1, temperatureRange, setTemperatureRange, '°F', temperatureEnabled, setTemperatureEnabled)}
+              {renderSlider('Wind Speed (mph)', scoringConfig.windSpeedMin, scoringConfig.windSpeedMax, 1, windSpeedRange, setWindSpeedRange, 'mph', windSpeedEnabled, setWindSpeedEnabled)}
+              {renderSlider('Sky Cover (%)', scoringConfig.skyCoverMin, scoringConfig.skyCoverMax, 1, skyCoverRange, setSkyCoverRange, '%', skyCoverEnabled, setSkyCoverEnabled)}
+              {renderSlider('Precipitation Chance (%)', scoringConfig.precipChanceMin, scoringConfig.precipChanceMax, 1, precipChanceRange, setPrecipChanceRange, '%', precipChanceEnabled, setPrecipChanceEnabled)}
+              {renderSlider('Tide (ft)', scoringConfig.tideMin, scoringConfig.tideMax, 0.1, tideRange, setTideRange, 'ft', tideEnabled, setTideEnabled)}
+              <div className="mt-4 flex justify-between items-center gap-2">
+                <button
+                  onClick={handleRestoreDefaults}
+                  className="text-sm bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded"
+                >
+                  Restore Defaults
+                </button>
+                <button
+                  onClick={handleApplySettings}
+                  className="text-sm bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!showSettings && !zipError && (
         <div className="h-[375px] overflow-y-auto space-y-1">
           {loading && <p>Loading...</p>}
           {forecast.map((hour, idx) => (
-            <div
+{{ ... }}
               key={idx}
               className={`hourly-scoring-block ${getScoreColor(hour.score)} ${selectedHour === idx ? 'selected' : ''}`}
               onClick={() => setSelectedHour(selectedHour === idx ? null : idx)}

@@ -26,9 +26,19 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  // Track initial page view
+  // Track initial page view and check for valid ZIP from localStorage
   useEffect(() => {
     trackPageView(window.location.pathname);
+    
+    // Check for valid ZIP from localStorage on initial load
+    const savedZip = localStorage.getItem('zipCode');
+    if (savedZip) {
+      const zipRegex = /^\d{5}(-\d{4})?$/;
+      if (zipRegex.test(savedZip)) {
+        setZipCode(savedZip);
+        validateAndFetch();
+      }
+    }
   }, []);
 
   const scoringConfig = activityDefaults[activity];

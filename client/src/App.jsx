@@ -58,18 +58,30 @@ function App() {
     return stored ? JSON.parse(stored) : scoringConfig.daylightRange;
   });
 
-  useEffect(() => {
-    if (zipCode) {
-      const zipRegex = /^\d{5}(-\d{4})?$/;
-      if (zipRegex.test(zipCode)) {
-        fetchConditions();
-      } else {
-        setZipError(true);
-      }
-    } else {
-      setZipError(false);
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      validateAndFetch();
     }
-  }, [zipCode]);
+  };
+
+  const handleZipChange = (e) => {
+    setZipError(false);
+    setFetchError(false);
+    setZipCode(e.target.value);
+  };
+
+  const validateAndFetch = () => {
+    if (!zipCode) return;
+    
+    const zipRegex = /^\d{5}(-\d{4})?$/;
+    if (!zipRegex.test(zipCode)) {
+      setZipError(true);
+      return;
+    }
+    
+    setZipError(false);
+    fetchConditions();
+  };
 
 
   const fetchConditions = async () => {
@@ -193,12 +205,6 @@ function App() {
     // Update activity and save to localStorage
     setActivity(selected);
     localStorage.setItem('selectedActivity', selected);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      fetchConditions();
-    }
   };
 
   const getScoreColor = (score) => {
@@ -437,9 +443,10 @@ function App() {
         <input
           type="text"
           placeholder="ZIP"
-          className="border rounded px-2 py-1 w-20 h-[32px]"
+          className="border rounded px-2 py-1 w-28 h-[32px]"
           value={zipCode}
-          onChange={(e) => setZipCode(e.target.value)}
+          onChange={handleZipChange}
+          onKeyDown={handleKeyDown}
           name="postal-code"
           autoComplete="postal-code"
           />
@@ -462,7 +469,7 @@ function App() {
           <GearIcon className="w-4 h-4" />
         </button>
         <button
-          onClick={fetchConditions}
+          onClick={validateAndFetch}
           className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
           title="Check Conditions"
         >

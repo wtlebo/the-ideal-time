@@ -71,13 +71,17 @@ function App() {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       validateAndFetch();
+    } else if (e.target.value.length === 5 || e.target.value.length === 10) {
+      // Only fetch when Enter is pressed, not on input change
     }
   };
 
-  const handleZipChange = (e) => {
+  const handleZipChange = async (e) => {
     setZipError(false);
     setFetchError(false);
     setZipCode(e.target.value);
+    // Only fetch when Enter is pressed or Check button is clicked
+    // We'll remove the automatic validation on input change
   };
 
   const validateAndFetch = async () => {

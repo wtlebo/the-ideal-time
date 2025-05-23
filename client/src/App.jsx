@@ -286,7 +286,7 @@ function App() {
     if (forecast.length > 0) {
       setForecast(prevForecast => scoreForecast(prevForecast));
     }
-  }, [forecast, activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange]);
+  }, [activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange]);
 
   const formatDateTime = (isoString, timeZone = 'America/New_York') => {
     const options = {

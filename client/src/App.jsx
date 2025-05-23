@@ -378,83 +378,87 @@ function App() {
             className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500"
           />
         </div>
-        <div className="flex items-center gap-4">
-          <Range
-            values={values}
-            step={step}
-            min={min}
-            max={max}
-            onChange={(values) => {
-              // Ensure values are within min/max range and properly rounded
-              const normalizedValues = values.map(value => {
-                const rounded = Math.round((value - min) / step) * step + min;
-                return Math.max(min, Math.min(max, rounded));
-              });
-              setValues(normalizedValues);
-              // Standardize the key format for all slider values
-              const key = unit === 'min' ? 'daylightRange' : label.toLowerCase().replace(/[^a-z0-9]/gi, '_');
-              localStorage.setItem(`${key}_${activity}`, JSON.stringify(normalizedValues));
-            }}
-            renderTrack={({ props, children }) => {
-              const trackStyle = {
-                height: '6px',
-                width: '100%',
-                display: 'flex'
-              };
+        {enabled && (
+          <>
+            <div className="flex items-center gap-4">
+              <Range
+                values={values}
+                step={step}
+                min={min}
+                max={max}
+                onChange={(values) => {
+                  // Ensure values are within min/max range and properly rounded
+                  const normalizedValues = values.map(value => {
+                    const rounded = Math.round((value - min) / step) * step + min;
+                    return Math.max(min, Math.min(max, rounded));
+                  });
+                  setValues(normalizedValues);
+                  // Standardize the key format for all slider values
+                  const key = unit === 'min' ? 'daylightRange' : label.toLowerCase().replace(/[^a-z0-9]/gi, '_');
+                  localStorage.setItem(`${key}_${activity}`, JSON.stringify(normalizedValues));
+                }}
+                renderTrack={({ props, children }) => {
+                  const trackStyle = {
+                    height: '6px',
+                    width: '100%',
+                    display: 'flex'
+                  };
 
-              // Extract key from props if it exists
-              const { key, ...restProps } = props;
+                  // Extract key from props if it exists
+                  const { key, ...restProps } = props;
 
-              const backgroundStyles = [
-                {
-                  flex: `${(values[0] - min) / (max - min)}`,
-                  backgroundColor: '#ccc',
-                  height: '4px',
-                  alignSelf: 'center'
-                },
-                {
-                  flex: `${(values[1] - values[0]) / (max - min)}`,
-                  backgroundColor: '#0d9488',
-                  height: '6px',
-                  alignSelf: 'center'
-                },
-                {
-                  flex: `${(max - values[1]) / (max - min)}`,
-                  backgroundColor: '#ccc',
-                  height: '4px',
-                  alignSelf: 'center'
-                }
-              ];
+                  const backgroundStyles = [
+                    {
+                      flex: `${(values[0] - min) / (max - min)}`,
+                      backgroundColor: '#ccc',
+                      height: '4px',
+                      alignSelf: 'center'
+                    },
+                    {
+                      flex: `${(values[1] - values[0]) / (max - min)}`,
+                      backgroundColor: '#0d9488',
+                      height: '6px',
+                      alignSelf: 'center'
+                    },
+                    {
+                      flex: `${(max - values[1]) / (max - min)}`,
+                      backgroundColor: '#ccc',
+                      height: '4px',
+                      alignSelf: 'center'
+                    }
+                  ];
 
-              return (
-                <div key={key} {...restProps} style={{ ...restProps.style, ...trackStyle }}>
-                  {backgroundStyles.map((style, idx) => (
-                    <div key={idx} style={style} />
-                  ))}
-                  {children}
-                </div>
-              );
-            }}
-            renderThumb={({ props }) => {
-              const { key, ...restProps } = props;
-              return (
-                <div
-                  key={key}
-                  {...restProps}
-                  className="h-4 w-4 bg-white border border-gray-400 rounded-full shadow"
-                />
-              );
-            }}
-          />
-        </div>
-        <div className="text-sm mt-1 text-gray-300">
-          Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : 
-            unit === '%' ? `${values[0]}% - ${values[1]}%` : 
-            values[0] === min && values[1] === max ? `no min - no max` : 
-            values[0] === min ? `no min - ${values[1]} ${unit}` : 
-            values[1] === max ? `${values[0]} ${unit} - no max` : 
-            `${values[0]} ${unit} - ${values[1]} ${unit}`}
-        </div>
+                  return (
+                    <div key={key} {...restProps} style={{ ...restProps.style, ...trackStyle }}>
+                      {backgroundStyles.map((style, idx) => (
+                        <div key={idx} style={style} />
+                      ))}
+                      {children}
+                    </div>
+                  );
+                }}
+                renderThumb={({ props }) => {
+                  const { key, ...restProps } = props;
+                  return (
+                    <div
+                      key={key}
+                      {...restProps}
+                      className="h-4 w-4 bg-white border border-gray-400 rounded-full shadow"
+                    />
+                  );
+                }}
+              />
+            </div>
+            <div className="text-sm mt-1 text-gray-300">
+              Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : 
+                unit === '%' ? `${values[0]}% - ${values[1]}%` : 
+                values[0] === min && values[1] === max ? `no min - no max` : 
+                values[0] === min ? `no min - ${values[1]} ${unit}` : 
+                values[1] === max ? `${values[0]} ${unit} - no max` : 
+                `${values[0]} ${unit} - ${values[1]} ${unit}`}
+            </div>
+          </>
+        )}
       </div>
     );
   };

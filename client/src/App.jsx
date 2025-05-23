@@ -230,7 +230,6 @@ function App() {
       <div className="mb-4">
         <label className="block text-sm font-semibold text-white mb-1">{label}</label>
         <div className="flex items-center gap-4">
-          {unit !== 'min' && <span className="text-sm w-10 text-gray-100">{min}</span>}
           <Range
             values={values}
             step={step}
@@ -295,10 +294,12 @@ function App() {
               );
             }}
           />
-          {unit !== 'min' && <span className="text-sm w-10 text-gray-100">{max}</span>}
         </div>
         <div className="text-sm mt-1 text-gray-300">
-          Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : `${values[0]} ${unit} - ${values[1]} ${unit}`}
+          Selected: {unit === 'min' ? `${formatMinutes(values[0])} - ${formatMinutes(values[1])}` : 
+            values[0] === min ? `no min - ${values[1]} ${unit}` : 
+            values[1] === max ? `${values[0]} ${unit} - no max` : 
+            `${values[0]} ${unit} - ${values[1]} ${unit}`}
         </div>
       </div>
     );

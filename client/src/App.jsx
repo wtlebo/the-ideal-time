@@ -10,7 +10,7 @@ import './styles/custom.css';
 
 function App() {
   const [zipCode, setZipCode] = useState(() => localStorage.getItem('zipCode') || '');
-  const [activity, setActivity] = useState('paddleboarding');
+  const [activity, setActivity] = useState(() => localStorage.getItem('selectedActivity') || 'paddleboarding');
   const [forecast, setForecast] = useState([]);
   const [stationId, setStationId] = useState('');
   const [stationName, setStationName] = useState('');
@@ -180,6 +180,7 @@ function App() {
     const selected = e.target.value;
     trackEvent('activity_changed', { new_activity: selected });
     setActivity(selected);
+    localStorage.setItem('selectedActivity', selected);
     const defaults = activityDefaults[selected];
     setTideRange(defaults.tideRange);
     setTemperatureRange(defaults.temperatureRange);
@@ -197,7 +198,7 @@ function App() {
 
   const getScoreColor = (score) => {
     if (score >= 6) return 'bg-green-500';
-    if (score === 5) return 'bg-yellow-300';
+    if (score === 5) return 'bg-yellow-400';
     if (score === 4) return 'bg-amber-600';
     if (score === 3) return 'bg-orange-700';
     if (score === 2) return 'bg-red-800';
@@ -346,6 +347,8 @@ function App() {
           className="border rounded px-2 py-1 w-24 h-[32px]"
           value={zipCode}
           onChange={(e) => setZipCode(e.target.value)}
+          name="postal-code"
+          autocomplete="postal-code"
           />
         <select
           className="border rounded px-2 py-1 h-[32px] flex-grow"

@@ -105,25 +105,6 @@ function App() {
     // Save the new activity to localStorage
     localStorage.setItem('selectedActivity', activity);
   }, [activity]);
-    // Restore ranges from localStorage
-    setTideRange(JSON.parse(localStorage.getItem(`tide_ft_${activity}`)) || scoringConfig.tideRange);
-    setTemperatureRange(JSON.parse(localStorage.getItem(`temperature_°f_${activity}`)) || scoringConfig.temperatureRange);
-    setWindSpeedRange(JSON.parse(localStorage.getItem(`windSpeed_mph_${activity}`)) || scoringConfig.windSpeedRange);
-    setSkyCoverRange(JSON.parse(localStorage.getItem(`skyCover_%_${activity}`)) || scoringConfig.skyCoverRange);
-    setPrecipChanceRange(JSON.parse(localStorage.getItem(`precipChance_%_${activity}`)) || scoringConfig.precipChanceRange);
-    setDaylightRange(JSON.parse(localStorage.getItem(`daylightRange_${activity}`)) || scoringConfig.daylightRange);
-
-    // Restore enabled states from localStorage
-    setTideEnabled(JSON.parse(localStorage.getItem(`tideEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.tide);
-    setTemperatureEnabled(JSON.parse(localStorage.getItem(`temperatureEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.temperature);
-    setWindSpeedEnabled(JSON.parse(localStorage.getItem(`windSpeedEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.windSpeed);
-    setSkyCoverEnabled(JSON.parse(localStorage.getItem(`skyCoverEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.skyCover);
-    setPrecipChanceEnabled(JSON.parse(localStorage.getItem(`precipChanceEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.precipChance);
-    setDaylightEnabled(JSON.parse(localStorage.getItem(`daylightEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.daylight);
-
-    // Save the new activity to localStorage
-    localStorage.setItem('selectedActivity', activity);
-  }, [activity]);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {

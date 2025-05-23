@@ -197,10 +197,10 @@ function App() {
 
   const getScoreColor = (score) => {
     if (score >= 6) return 'bg-green-500';
-    if (score === 5) return 'bg-lime-400';
-    if (score === 4) return 'bg-yellow-500';
-    if (score === 3) return 'bg-amber-600';
-    if (score === 2) return 'bg-orange-700';
+    if (score === 5) return 'bg-yellow-300';
+    if (score === 4) return 'bg-amber-600';
+    if (score === 3) return 'bg-orange-700';
+    if (score === 2) return 'bg-red-800';
     if (score === 1) return 'bg-red-800';
     return 'bg-red-800';
   };

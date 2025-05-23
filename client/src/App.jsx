@@ -80,7 +80,7 @@ function App() {
     setZipCode(e.target.value);
   };
 
-  const validateAndFetch = () => {
+  const validateAndFetch = async () => {
     if (!zipCode) return;
     
     const zipRegex = /^\d{5}(-\d{4})?$/;
@@ -90,7 +90,9 @@ function App() {
     }
     
     setZipError(false);
-    fetchConditions();
+    setLoading(true);
+    await fetchConditions();
+    setLoading(false);
   };
 
 

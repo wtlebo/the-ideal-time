@@ -19,6 +19,7 @@ function App() {
   const [stationDistance, setStationDistance] = useState(null);
   const [locationName, setLocationName] = useState('');
   const [zipError, setZipError] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
   const [conditionsError, setConditionsError] = useState(false);
   const [timeZone, setTimeZone] = useState('America/New_York');
   const [selectedHour, setSelectedHour] = useState(null);
@@ -58,8 +59,15 @@ function App() {
   });
 
   useEffect(() => {
-    if (/^\d{5}$/.test(zipCode)) {
-      fetchConditions();
+    if (zipCode) {
+      const zipRegex = /^\d{5}(-\d{4})?$/;
+      if (zipRegex.test(zipCode)) {
+        fetchConditions();
+      } else {
+        setZipError(true);
+      }
+    } else {
+      setZipError(false);
     }
   }, [zipCode]);
 
@@ -68,6 +76,7 @@ function App() {
     trackEvent('zip_search', { zip_code: zipCode });
     let newForecast = [];
     setZipError(false);
+    setFetchError(false);
     setLocationName('');
     if (!zipCode) return;
     setLoading(true);
@@ -88,7 +97,7 @@ function App() {
       // Check for conditions error
       if (data.error) {
         console.error('Conditions error:', data.error);
-        setConditionsError(true);
+        setFetchError(true);
         setLoading(false);
         return;
       }
@@ -98,7 +107,7 @@ function App() {
         setLocationName(`${data.city}, ${data.state}`);
       } else {
         console.warn('No valid city/state found:', data);
-        setConditionsError(true);
+        setFetchError(true);
         setLoading(false);
         return;
       }
@@ -115,13 +124,13 @@ function App() {
         setLoading(false);
       } else {
         setForecast([]);
-        setConditionsError(true);
+        setFetchError(true);
         setLoading(false);
       }
     } catch (error) {
       console.error('Geocoding fetch error:', error);
       setForecast([]);
-      setZipError(true);
+      setFetchError(true);
       setLoading(false);
     }
   };
@@ -424,7 +433,7 @@ function App() {
         </div>
       )}
 
-       <div className="flex gap-2 items-center mb-1">
+      <div className="flex gap-2 items-center mb-1 w-full max-w-md mx-auto">
         <input
           type="text"
           placeholder="ZIP"
@@ -464,13 +473,16 @@ function App() {
       {locationName && (
         <div className="text-sm text-center text-gray-300 mb-2">{locationName}</div>
       )}
-
       {zipError && (
         <div className="text-red-500 text-sm mb-2">
-          {zipError ? 'Please enter a valid ZIP code' : 'Could not fetch conditions data'}
+          <strong>Error:</strong> Please enter a valid ZIP code (e.g., 12345 or 12345-6789)
         </div>
       )}
-
+      {fetchError && (
+        <div className="text-red-500 text-sm mb-2">
+          <strong>Error:</strong> Could not fetch conditions data
+        </div>
+      )}
 
       {showSettings && (
         <div className="mb-6 border rounded p-4 bg-gray-800">

@@ -228,6 +228,7 @@ function App() {
     return 'bg-red-800';
   };
 
+  // Score forecast data using current settings
   const scoreForecast = (rawForecast) => {
     return rawForecast.map(entry => {
       let score = 0;
@@ -289,9 +290,15 @@ function App() {
     });
   };
 
+  // Update forecast scores when data is fetched
   useEffect(() => {
-    setForecast(scoreForecast(forecast));
-  }, [activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange]);
+    if (forecast.length > 0) {
+      setForecast(prevForecast => scoreForecast(prevForecast));
+    }
+  }, [forecast, activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange]);
+
+  // Remove this useEffect to prevent automatic scoring updates on settings changes
+  // Scoring will now only update when data is fetched
 
   const formatDateTime = (isoString, timeZone = 'America/New_York') => {
     const options = {

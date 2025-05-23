@@ -94,14 +94,33 @@ function App() {
   };
 
 
-  const fetchConditions = async () => {
+  const handleRestoreDefaults = () => {
+    const defaults = activityDefaults[activity];
+    setTideRange(defaults.tideRange);
+    setTemperatureRange(defaults.temperatureRange);
+    setWindSpeedRange(defaults.windSpeedRange);
+    setSkyCoverRange(defaults.skyCoverRange);
+    setPrecipChanceRange(defaults.precipChanceRange);
+    setDaylightRange(defaults.daylightRange);
+    setTideEnabled(defaults.relevantFactors.tide);
+    setTemperatureEnabled(defaults.relevantFactors.temperature);
+    setWindSpeedEnabled(defaults.relevantFactors.windSpeed);
+    setSkyCoverEnabled(defaults.relevantFactors.skyCover);
+    setPrecipChanceEnabled(defaults.relevantFactors.precipChance);
+    setDaylightEnabled(defaults.relevantFactors.daylight);
+    // Update scoring with new defaults
+    setForecast(prevForecast => scoreForecast(prevForecast));
+  };
+
+  // Remove duplicate fetchConditions
+  // The loading state is now only set when we're actually fetching data in validateAndFetch
+  // and reset in fetchConditions when the request completes
     trackEvent('zip_search', { zip_code: zipCode });
     let newForecast = [];
     setZipError(false);
     setFetchError(false);
     setLocationName('');
     if (!zipCode) return;
-    setLoading(true);
     
     try {
       // Default sunrise/sunset fallback
@@ -141,57 +160,6 @@ function App() {
       
       // Process forecast data
       newForecast = data.forecast || [];
-      if (newForecast.length > 0) {
-        setForecast(scoreForecast(newForecast));
-        setLoading(false);
-      } else {
-        setForecast([]);
-        setFetchError(true);
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error('Geocoding fetch error:', error);
-      setForecast([]);
-      setFetchError(true);
-      setLoading(false);
-    }
-  };
-
-  
-
-  const handleRestoreDefaults = () => {
-    const defaults = activityDefaults[activity];
-    setTideRange(defaults.tideRange);
-    setTemperatureRange(defaults.temperatureRange);
-    setWindSpeedRange(defaults.windSpeedRange);
-    setSkyCoverRange(defaults.skyCoverRange);
-    setPrecipChanceRange(defaults.precipChanceRange);
-    setDaylightRange(defaults.daylightRange);
-    setTideEnabled(defaults.relevantFactors.tide);
-    setTemperatureEnabled(defaults.relevantFactors.temperature);
-    setWindSpeedEnabled(defaults.relevantFactors.windSpeed);
-    setSkyCoverEnabled(defaults.relevantFactors.skyCover);
-    setPrecipChanceEnabled(defaults.relevantFactors.precipChance);
-    setDaylightEnabled(defaults.relevantFactors.daylight);
-    //localStorage.setItem('daylightRange', JSON.stringify(defaultDaylight)); //delete this?
-  };
-
-  const handleApplySettings = () => {
-    trackEvent('settings_applied', {
-      activity,
-      settings: {
-        tideRange,
-        temperatureRange,
-        windSpeedRange,
-        skyCoverRange,
-        precipChanceRange,
-        daylightRange
-      }
-    });
-    setShowSettings(false);
-    validateAndFetch();
-  };
-
   const handleActivityChange = (e) => {
     const selected = e.target.value;
     trackEvent('activity_changed', { new_activity: selected });
@@ -216,6 +184,8 @@ function App() {
     // Update activity and save to localStorage
     setActivity(selected);
     localStorage.setItem('selectedActivity', selected);
+    // Update scoring with new activity defaults
+    setForecast(prevForecast => scoreForecast(prevForecast));
   };
 
   const getScoreColor = (score) => {
@@ -296,9 +266,6 @@ function App() {
       setForecast(prevForecast => scoreForecast(prevForecast));
     }
   }, [forecast, activity, tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange]);
-
-  // Remove this useEffect to prevent automatic scoring updates on settings changes
-  // Scoring will now only update when data is fetched
 
   const formatDateTime = (isoString, timeZone = 'America/New_York') => {
     const options = {
@@ -440,40 +407,134 @@ function App() {
             values[0] === min ? `no min - ${values[1]} ${unit}` : 
             values[1] === max ? `${values[0]} ${unit} - no max` : 
             `${values[0]} ${unit} - ${values[1]} ${unit}`}
-        </div>
-      </div>
-    );
-  };
+    });
+    const res = await fetch(`${getApiBaseUrl()}/conditions?${params}`);
+    const data = await res.json();
 
-  return (
-    <div className="px-4 pb-4 max-w-md mx-auto">
+    // Check for conditions error
+    if (data.error) {
+      console.error('Conditions error:', data.error);
+      setFetchError(true);
+      setLoading(false);
+      return;
+    }
+
+    // Set location name if we got valid city/state
+    if (data.city && data.state) {
+      setLocationName(`${data.city}, ${data.state}`);
+    } else {
+      console.warn('No valid city/state found:', data);
+      setFetchError(true);
+      setLoading(false);
+      return;
+    }
+
+    // Set station and timezone info
+    setStationId(data.station_id || '');
+    setStationName(data.station_name || '');
+    setStationDistance(data.station_distance_miles || null);
+    setTimeZone(data.timezone || 'America/New_York');
+
+    // Process forecast data
+    newForecast = data.forecast || [];
+    if (newForecast.length > 0) {
+      setForecast(scoreForecast(newForecast));
+      setLoading(false);
+    } else {
+      setForecast([]);
+      setFetchError(true);
+      setLoading(false);
+    }
+  } catch (error) {
+    console.error('Geocoding fetch error:', error);
+    setForecast([]);
+    setFetchError(true);
+    setLoading(false);
+  }
+};
+
+const handleApplySettings = () => {
+  trackEvent('settings_applied', {
+    activity,
+    settings: {
+      tideRange,
+      temperatureRange,
+      windSpeedRange,
+      skyCoverRange,
+      precipChanceRange,
+      daylightRange
+    }
+  });
+  setShowSettings(false);
+  // Only update scoring, don't fetch new data
+  setForecast(prevForecast => scoreForecast(prevForecast));
+};
+
+const handleZipChange = (e) => {
+  setZipError(false);
+  setFetchError(false);
+  setZipCode(e.target.value);
+  if (e.target.value.length === 5 || e.target.value.length === 10) {
+    setLoading(true);
+    fetchConditions();
+  }
+};
+
+const handleKeyDown = (e) => {
+  if (e.key === 'Enter') {
+    setLoading(true);
+    fetchConditions();
+  }
+};
+
+return (
+  <div className="px-4 pb-4 max-w-md mx-auto">
+    <div className="flex justify-center mb-2">
+      <img src="/logo.png" alt="The Ideal Time" className="w-full max-h-96 object-contain" />
+    </div>
+
+    {loading && (
       <div className="flex justify-center mb-2">
-        <img src="/logo.png" alt="The Ideal Time" className="w-full max-h-96 object-contain" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
+    )}
 
-      {loading && (
-        <div className="flex justify-center mb-2">
-          
-        </div>
-      )}
-
-      <div className="flex gap-2 items-center mb-1 w-full max-w-md mx-auto">
-        <input
-          type="text"
-          placeholder="ZIP"
-          className="border rounded px-2 py-1 w-28 h-[32px]"
-          value={zipCode}
-          onChange={handleZipChange}
-          onKeyDown={handleKeyDown}
-          name="postal-code"
-          autoComplete="postal-code"
-          />
-        <select
-          className="border rounded px-2 py-1 h-[32px] w-48"
-          value={activity}
-          onChange={handleActivityChange}
-        >
-          {Object.entries(activityDefaults).map(([key, config]) => (
+    <div className="flex gap-2 items-center mb-1 w-full max-w-md mx-auto">
+      <input
+        type="text"
+        placeholder="ZIP"
+        className="border rounded px-2 py-1 w-28 h-[32px]"
+        value={zipCode}
+        onChange={handleZipChange}
+        onKeyDown={handleKeyDown}
+        name="postal-code"
+        autoComplete="postal-code"
+      />
+      <select
+        className="border rounded px-2 py-1 h-[32px] w-48"
+        value={activity}
+        onChange={handleActivityChange}
+      >
+        {Object.entries(activityDefaults).map(([key, config]) => (
+          <option key={key} value={key}>
+            {config.displayName}
+          </option>
+        ))}
+      </select>
+      <button
+        onClick={() => setShowSettings(!showSettings)}
+        className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
+        title="Preferences"
+      >
+        <GearIcon className="w-4 h-4" />
+      </button>
+      <button
+        onClick={validateAndFetch}
+        className="bg-blue-600 text-white px-3 py-1 rounded h-[32px] flex items-center justify-center"
+        title="Check Conditions"
+      >
+        <span className="text-lg">✓</span>
+      </button>
             <option key={key} value={key}>
               {config.displayName}
             </option>

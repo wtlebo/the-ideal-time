@@ -45,66 +45,93 @@ function App() {
   const scoringConfig = activityDefaults[activity];
 
   // Initialize state with localStorage values or defaults
-  const [tideRange, setTideRange] = useState(scoringConfig.tideRange);
-  const [temperatureRange, setTemperatureRange] = useState(scoringConfig.temperatureRange);
-  const [windSpeedRange, setWindSpeedRange] = useState(scoringConfig.windSpeedRange);
-  const [skyCoverRange, setSkyCoverRange] = useState(scoringConfig.skyCoverRange);
-  const [precipChanceRange, setPrecipChanceRange] = useState(scoringConfig.precipChanceRange);
-  const [daylightRange, setDaylightRange] = useState(scoringConfig.daylightRange);
+  // Initialize state from localStorage or defaults
+  const [tideRange, setTideRange] = useState(() => {
+    const saved = localStorage.getItem(`tide_${activity}`);
+    return saved ? JSON.parse(saved) : scoringConfig.tideRange;
+  });
 
-  const [tideEnabled, setTideEnabled] = useState(activityDefaults[activity].relevantFactors.tide);
-  const [temperatureEnabled, setTemperatureEnabled] = useState(activityDefaults[activity].relevantFactors.temperature);
-  const [windSpeedEnabled, setWindSpeedEnabled] = useState(activityDefaults[activity].relevantFactors.windSpeed);
-  const [skyCoverEnabled, setSkyCoverEnabled] = useState(activityDefaults[activity].relevantFactors.skyCover);
-  const [precipChanceEnabled, setPrecipChanceEnabled] = useState(activityDefaults[activity].relevantFactors.precipChance);
-  const [daylightEnabled, setDaylightEnabled] = useState(activityDefaults[activity].relevantFactors.daylight);
+  const [temperatureRange, setTemperatureRange] = useState(() => {
+    const saved = localStorage.getItem(`temperature_${activity}`);
+    return saved ? JSON.parse(saved) : scoringConfig.temperatureRange;
+  });
+
+  const [windSpeedRange, setWindSpeedRange] = useState(() => {
+    const saved = localStorage.getItem(`windspeed_${activity}`);
+    return saved ? JSON.parse(saved) : scoringConfig.windSpeedRange;
+  });
+
+  const [skyCoverRange, setSkyCoverRange] = useState(() => {
+    const saved = localStorage.getItem(`skycover_${activity}`);
+    return saved ? JSON.parse(saved) : scoringConfig.skyCoverRange;
+  });
+
+  const [precipChanceRange, setPrecipChanceRange] = useState(() => {
+    const saved = localStorage.getItem(`precipchance_${activity}`);
+    return saved ? JSON.parse(saved) : scoringConfig.precipChanceRange;
+  });
+
+  const [daylightRange, setDaylightRange] = useState(() => {
+    const saved = localStorage.getItem(`daylightRange_${activity}`);
+    return saved ? JSON.parse(saved) : scoringConfig.daylightRange;
+  });
+
+  const [tideEnabled, setTideEnabled] = useState(() => {
+    const saved = localStorage.getItem(`tideEnabled_${activity}`);
+    return saved ? JSON.parse(saved) : activityDefaults[activity].relevantFactors.tide;
+  });
+
+  const [temperatureEnabled, setTemperatureEnabled] = useState(() => {
+    const saved = localStorage.getItem(`temperatureEnabled_${activity}`);
+    return saved ? JSON.parse(saved) : activityDefaults[activity].relevantFactors.temperature;
+  });
+
+  const [windSpeedEnabled, setWindSpeedEnabled] = useState(() => {
+    const saved = localStorage.getItem(`windSpeedEnabled_${activity}`);
+    return saved ? JSON.parse(saved) : activityDefaults[activity].relevantFactors.windSpeed;
+  });
+
+  const [skyCoverEnabled, setSkyCoverEnabled] = useState(() => {
+    const saved = localStorage.getItem(`skyCoverEnabled_${activity}`);
+    return saved ? JSON.parse(saved) : activityDefaults[activity].relevantFactors.skyCover;
+  });
+
+  const [precipChanceEnabled, setPrecipChanceEnabled] = useState(() => {
+    const saved = localStorage.getItem(`precipChanceEnabled_${activity}`);
+    return saved ? JSON.parse(saved) : activityDefaults[activity].relevantFactors.precipChance;
+  });
+
+  const [daylightEnabled, setDaylightEnabled] = useState(() => {
+    const saved = localStorage.getItem(`daylightEnabled_${activity}`);
+    return saved ? JSON.parse(saved) : activityDefaults[activity].relevantFactors.daylight;
+  });
 
   // Save slider values to localStorage immediately when they change
   useEffect(() => {
     localStorage.setItem(`tide_${activity}`, JSON.stringify(tideRange));
-  }, [tideRange, activity]);
-
-  useEffect(() => {
     localStorage.setItem(`temperature_${activity}`, JSON.stringify(temperatureRange));
-  }, [temperatureRange, activity]);
-
-  useEffect(() => {
     localStorage.setItem(`windspeed_${activity}`, JSON.stringify(windSpeedRange));
-  }, [windSpeedRange, activity]);
-
-  useEffect(() => {
     localStorage.setItem(`skycover_${activity}`, JSON.stringify(skyCoverRange));
-  }, [skyCoverRange, activity]);
-
-  useEffect(() => {
     localStorage.setItem(`precipchance_${activity}`, JSON.stringify(precipChanceRange));
-  }, [precipChanceRange, activity]);
-
-  useEffect(() => {
     localStorage.setItem(`daylightRange_${activity}`, JSON.stringify(daylightRange));
-  }, [daylightRange, activity]);
+  }, [tideRange, temperatureRange, windSpeedRange, skyCoverRange, precipChanceRange, daylightRange, activity]);
 
-  // Handle activity changes by restoring settings from localStorage
+  // Save checkbox states to localStorage immediately when they change
   useEffect(() => {
-    // Restore ranges from localStorage
-    setTideRange(JSON.parse(localStorage.getItem(`tide_${activity}`)) || scoringConfig.tideRange);
-    setTemperatureRange(JSON.parse(localStorage.getItem(`temperature_${activity}`)) || scoringConfig.temperatureRange);
-    setWindSpeedRange(JSON.parse(localStorage.getItem(`windspeed_${activity}`)) || scoringConfig.windSpeedRange);
-    setSkyCoverRange(JSON.parse(localStorage.getItem(`skycover_${activity}`)) || scoringConfig.skyCoverRange);
-    setPrecipChanceRange(JSON.parse(localStorage.getItem(`precipchance_${activity}`)) || scoringConfig.precipChanceRange);
-    setDaylightRange(JSON.parse(localStorage.getItem(`daylightRange_${activity}`)) || scoringConfig.daylightRange);
+    localStorage.setItem(`tideEnabled_${activity}`, JSON.stringify(tideEnabled));
+    localStorage.setItem(`temperatureEnabled_${activity}`, JSON.stringify(temperatureEnabled));
+    localStorage.setItem(`windSpeedEnabled_${activity}`, JSON.stringify(windSpeedEnabled));
+    localStorage.setItem(`skyCoverEnabled_${activity}`, JSON.stringify(skyCoverEnabled));
+    localStorage.setItem(`precipChanceEnabled_${activity}`, JSON.stringify(precipChanceEnabled));
+    localStorage.setItem(`daylightEnabled_${activity}`, JSON.stringify(daylightEnabled));
+  }, [tideEnabled, temperatureEnabled, windSpeedEnabled, skyCoverEnabled, precipChanceEnabled, daylightEnabled, activity]);
 
-    // Restore enabled states from localStorage
-    setTideEnabled(JSON.parse(localStorage.getItem(`tideEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.tide);
-    setTemperatureEnabled(JSON.parse(localStorage.getItem(`temperatureEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.temperature);
-    setWindSpeedEnabled(JSON.parse(localStorage.getItem(`windSpeedEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.windSpeed);
-    setSkyCoverEnabled(JSON.parse(localStorage.getItem(`skyCoverEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.skyCover);
-    setPrecipChanceEnabled(JSON.parse(localStorage.getItem(`precipChanceEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.precipChance);
-    setDaylightEnabled(JSON.parse(localStorage.getItem(`daylightEnabled_${activity}`)) ?? activityDefaults[activity].relevantFactors.daylight);
-
-    // Save the new activity to localStorage
+  // Handle activity changes by saving the new activity to localStorage
+  useEffect(() => {
     localStorage.setItem('selectedActivity', activity);
   }, [activity]);
+
+
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {

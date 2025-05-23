@@ -179,82 +179,30 @@ function App() {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 6) return 'bg-green-500';
-    if (score === 5) return 'bg-yellow-400';
-    if (score === 4) return 'bg-amber-600';
-    if (score === 3) return 'bg-orange-700';
-    if (score === 2) return 'bg-red-800';
-    if (score === 1) return 'bg-red-800';
-    return 'bg-red-800';
-  };
+    // Calculate the number of enabled conditions
+    const enabledConditions = [
+      tideEnabled,
+      temperatureEnabled,
+      windSpeedEnabled,
+      skyCoverEnabled,
+      precipChanceEnabled,
+      daylightEnabled
+    ].filter(enabled => enabled).length;
 
-  const scoreForecast = (rawForecast) => {
-    return rawForecast.map(entry => {
-      let score = 0;
-      
-      // Tide
-      if (entry.tideHeight !== null && tideEnabled) {
-        if (tideRange[0] === scoringConfig.tideMin) {
-          score += entry.tideHeight <= tideRange[1] ? 1 : 0;
-        } else if (tideRange[1] === scoringConfig.tideMax) {
-          score += entry.tideHeight >= tideRange[0] ? 1 : 0;
-        } else {
-          score += entry.tideHeight >= tideRange[0] && entry.tideHeight <= tideRange[1] ? 1 : 0;
-        }
-      }
-      
-      // Temperature
-      if (entry.temperature !== null && temperatureEnabled) {
-        if (temperatureRange[0] === scoringConfig.temperatureMin) {
-          score += entry.temperature <= temperatureRange[1] ? 1 : 0;
-        } else if (temperatureRange[1] === scoringConfig.temperatureMax) {
-          score += entry.temperature >= temperatureRange[0] ? 1 : 0;
-        } else {
-          score += entry.temperature >= temperatureRange[0] && entry.temperature <= temperatureRange[1] ? 1 : 0;
-        }
-      }
-      
-      // Wind Speed
-      if (entry.windSpeed !== null && windSpeedEnabled) {
-        if (windSpeedRange[0] === scoringConfig.windSpeedMin) {
-          score += entry.windSpeed <= windSpeedRange[1] ? 1 : 0;
-        } else if (windSpeedRange[1] === scoringConfig.windSpeedMax) {
-          score += entry.windSpeed >= windSpeedRange[0] ? 1 : 0;
-        } else {
-          score += entry.windSpeed >= windSpeedRange[0] && entry.windSpeed <= windSpeedRange[1] ? 1 : 0;
-        }
-      }
-      
-      // Sky Cover
-      if (entry.skyCover !== null && skyCoverEnabled) {
-        if (skyCoverRange[0] === scoringConfig.skyCoverMin) {
-          score += entry.skyCover <= skyCoverRange[1] ? 1 : 0;
-        } else if (skyCoverRange[1] === scoringConfig.skyCoverMax) {
-          score += entry.skyCover >= skyCoverRange[0] ? 1 : 0;
-        } else {
-          score += entry.skyCover >= skyCoverRange[0] && entry.skyCover <= skyCoverRange[1] ? 1 : 0;
-        }
-      }
-      
-      // Precipitation
-      if (entry.precipChance !== null && precipChanceEnabled) {
-        if (precipChanceRange[0] === scoringConfig.precipChanceMin) {
-          score += entry.precipChance <= precipChanceRange[1] ? 1 : 0;
-        } else if (precipChanceRange[1] === scoringConfig.precipChanceMax) {
-          score += entry.precipChance >= precipChanceRange[0] ? 1 : 0;
-        } else {
-          score += entry.precipChance >= precipChanceRange[0] && entry.precipChance <= precipChanceRange[1] ? 1 : 0;
-        }
-      }
-      
-      // Daylight
-      if (daylightEnabled) {
-        const entryMinutes = new Date(entry.time).getHours() * 60 + new Date(entry.time).getMinutes();
-        score += entryMinutes >= daylightRange[0] && entryMinutes <= daylightRange[1] ? 1 : 0;
-      }
-      
-      return { ...entry, score };
-    });
+    // Calculate thresholds based on enabled conditions
+    const thresholds = {
+      excellent: enabledConditions, // All conditions met
+      good: Math.floor(enabledConditions * 0.8), // 80% of conditions met
+      fair: Math.floor(enabledConditions * 0.6), // 60% of conditions met
+      poor: Math.floor(enabledConditions * 0.4), // 40% of conditions met
+      bad: Math.floor(enabledConditions * 0.2) // 20% of conditions met
+    };
+
+    if (score >= thresholds.excellent) return 'bg-green-500';
+    if (score >= thresholds.good) return 'bg-yellow-400';
+    if (score >= thresholds.fair) return 'bg-amber-600';
+    if (score >= thresholds.poor) return 'bg-orange-700';
+    return 'bg-red-800';
   };
 
   useEffect(() => {

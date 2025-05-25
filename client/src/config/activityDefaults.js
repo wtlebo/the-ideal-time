@@ -269,6 +269,36 @@ export const activityDefaults = {
     daylightRange: [360, 1200], // 6:00 AM to 8:00 PM
     requireDaylight: true
   },
+  starGazing: {
+    displayName: 'Star Gazing',
+    relevantFactors: {
+      tide: false,
+      temperature: false,
+      windSpeed: true,
+      skyCover: true,
+      precipChance: true,
+      daylight: true
+    },
+    tideMin: -2,
+    tideMax: 15,
+    tideRange: [-2, 15],
+    temperatureMin: 0,
+    temperatureMax: 120,
+    temperatureRange: [50, 100],
+    windSpeedMin: 0,
+    windSpeedMax: 40,
+    windSpeedRange: [0, 20],
+    skyCoverMin: 0,
+    skyCoverMax: 100,
+    skyCoverRange: [0, 10],
+    precipChanceMin: 0,
+    precipChanceMax: 100,
+    precipChanceRange: [0, 10],
+    daylightMin: 0, // 12:00 AM
+    daylightMax: 1439, // 11:59 PM
+    daylightRange: [1260, 1439], // 9:00 PM to 11:59 PM
+    requireDaylight: false
+  },
   sunbathing: {
     displayName: 'Sunbathing',
     relevantFactors: {

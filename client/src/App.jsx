@@ -11,6 +11,11 @@ import logo from '/logo.png';
 
 function App() {
   const [zipCode, setZipCode] = useState(() => localStorage.getItem('zipCode') || '');
+
+  // Persist zipCode to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('zipCode', zipCode);
+  }, [zipCode]);
   const [activity, setActivity] = useState(() => localStorage.getItem('selectedActivity') || 'paddleboarding');
 
 
